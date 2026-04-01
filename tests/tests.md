@@ -32,7 +32,7 @@
 ### `integration.test.js`
 
 - 단위 기능을 넘어서 framework가 서로 연결될 때의 흐름을 봅니다.
-- mount 이후 DOM 생성, `setState -> diff -> patch`, playground preview 연결이 핵심입니다.
+- mount 이후 DOM 생성, `setState -> diff -> patch`, playground preview 연결, VDOM 시각화 패널 렌더링이 핵심입니다.
 
 ## 지금 사용하는 방법
 

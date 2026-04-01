@@ -1,87 +1,187 @@
 // ============================================================
-// layout.js — 학습 페이지의 바깥 뼈대를 만드는 파일
+// layout.js — 학습 페이지의 큰 뼈대를 만드는 파일
 // ============================================================
 //
-// 앱 전체를 집으로 비유하면:
-//   - 이 파일은 "방의 구조"를 만드는 설계도다.
-//   - 각 섹션 파일은 그 방 안에 들어갈 책상, 의자, 칠판 같은 내용물이다.
-//
-// 그래서 이 파일은 "어떤 내용을 보여줄지"보다
-// "어디에 보여줄지"를 먼저 준비하는 역할을 한다.
+// 이번 버전에서는 한 번에 모든 챕터를 보여 주지 않는다.
+// 대신 왼쪽 메뉴에서 챕터를 고르면
+// 오른쪽 내용이 "교체"되는 방식으로 동작한다.
 // ============================================================
 
 // ------------------------------------------------------------
 // createLayout(root)
 // ------------------------------------------------------------
-// index.html에 있는 #app 안에 학습 페이지의 큰 뼈대를 만든다.
+// index.html의 #app 안에 학습 페이지 기본 구조를 만든다.
 //
-// [구성]
-//   1. 상단 소개 영역
-//   2. 왼쪽 학습 순서 네비게이션
-//   3. 오른쪽 실제 섹션이 들어갈 콘텐츠 영역
+// [왼쪽]
+//   - 챕터 네비게이션
 //
-// [반환값]
-//   이후 app.js가 쉽게 사용할 수 있도록
-//   자주 쓰는 DOM 요소를 한 객체로 묶어서 돌려준다.
+// [오른쪽]
+//   - 현재 챕터 제목 카드
+//   - 이전/다음 버튼
+//   - 실제 챕터 내용 1개
 // ------------------------------------------------------------
 export function createLayout(root) {
+  // root는 index.html의 가장 큰 빈 상자다.
+  // 이 안을 우리 학습 페이지 구조로 통째로 채운다.
   root.innerHTML = `
     <main class="nexus-shell learning-shell">
-      <header class="hero">
-        <p class="eyebrow">Mini React Learning Page</p>
-        <h1>React 핵심 개념 학습 페이지</h1>
-        <p>
-          Component, Props, State, Hooks, Virtual DOM을
-          직접 보고 만지면서 배우는 학습용 서비스의 스텁 화면입니다.
-        </p>
+      <header class="hero learning-hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Mini React Learning Page</p>
+          <h1>React 핵심 개념 학습 페이지</h1>
+          <p class="hero-description">
+            Component, Props, State, Hooks, Virtual DOM을
+            직접 보고 만지면서 배우는 학습용 서비스입니다.
+          </p>
+
+          <div class="hero-pills" aria-label="핵심 학습 키워드">
+            <span class="hero-pill">Pure JavaScript</span>
+            <span class="hero-pill">Mini React</span>
+            <span class="hero-pill">Interactive Learning</span>
+            <span class="hero-pill">Chapter Navigation</span>
+          </div>
+        </div>
       </header>
 
       <section class="main-grid learning-grid">
         <aside class="panel-card learning-sidebar">
+          <p class="sidebar-label">Roadmap</p>
           <h2>학습 순서</h2>
-          <p>왼쪽 메뉴는 나중에 현재 섹션 하이라이트와 진행률 표시로 확장할 예정입니다.</p>
+          <p class="sidebar-copy">
+            지금은 한 번에 한 챕터씩 집중해서 보는 방식입니다.
+            왼쪽 메뉴를 누르면 해당 챕터로 화면이 바뀝니다.
+          </p>
           <nav id="learning-nav" aria-label="학습 섹션 목록"></nav>
         </aside>
 
-        <section id="learning-content" class="learning-content" aria-live="polite"></section>
+        <section class="learning-stage">
+          <header class="panel-card chapter-shell">
+            <div class="chapter-copy">
+              <p id="chapter-step" class="chapter-step">Chapter 1</p>
+              <h2 id="chapter-title" class="chapter-title">챕터 제목을 준비 중입니다.</h2>
+              <p id="chapter-summary" class="chapter-summary">
+                챕터 설명을 준비 중입니다.
+              </p>
+            </div>
+
+            <div class="chapter-actions" aria-label="챕터 이동 버튼">
+              <button id="chapter-prev" type="button">이전 챕터</button>
+              <button id="chapter-next" type="button">다음 챕터</button>
+            </div>
+          </header>
+
+          <section id="learning-content" class="learning-content" aria-live="polite"></section>
+        </section>
       </section>
     </main>
   `;
 
+  // app.js가 쉽게 쓸 수 있도록 주요 DOM 요소들을 모아 반환한다.
   return {
+    // 왼쪽 챕터 메뉴 영역이다.
     nav: root.querySelector('#learning-nav'),
+    // 실제 현재 챕터가 렌더링될 영역이다.
     content: root.querySelector('#learning-content'),
+    // 예전 상단 상태 카드 자리다.
+    // 지금은 카드를 지웠기 때문에 null이 들어올 수 있다.
+    progressText: root.querySelector('#learning-progress-text'),
+    // 현재 챕터 번호 텍스트다.
+    chapterStep: root.querySelector('#chapter-step'),
+    // 현재 챕터 제목이다.
+    chapterTitle: root.querySelector('#chapter-title'),
+    // 현재 챕터 한 줄 설명이다.
+    chapterSummary: root.querySelector('#chapter-summary'),
+    // 이전 챕터 버튼이다.
+    prevButton: root.querySelector('#chapter-prev'),
+    // 다음 챕터 버튼이다.
+    nextButton: root.querySelector('#chapter-next'),
   };
 }
 
 // ------------------------------------------------------------
-// renderSectionNavigation(nav, sections)
+// renderSectionNavigation(nav, sections, onSelect)
 // ------------------------------------------------------------
-// 학습 섹션 목록을 받아 왼쪽 메뉴를 만든다.
-//
-// [입력 예시]
-//   [
-//     { id: 'component-section', title: '1. Component란?' },
-//     { id: 'hooks-section', title: '2. Hooks 배우기' },
-//   ]
-//
-// 지금은 단순한 앵커 목록이지만,
-// 나중에는 "현재 어디를 보고 있는지" 표시하는 기능도 붙일 수 있다.
+// 왼쪽 네비게이션 메뉴를 버튼 방식으로 만든다.
 // ------------------------------------------------------------
-export function renderSectionNavigation(nav, sections) {
+export function renderSectionNavigation(nav, sections, onSelect) {
+  // 전체 메뉴를 담을 순서 목록을 만든다.
   const list = document.createElement('ol');
+  // CSS에서 메뉴 목록처럼 꾸밀 클래스다.
   list.className = 'learning-nav-list';
 
+  // 나중에 필요할 수 있도록 버튼들을 모아 둘 배열이다.
+  const buttons = [];
+
+  // sections 배열을 돌며 메뉴 버튼을 만든다.
   for (const section of sections) {
+    // 한 줄을 담을 li를 만든다.
     const item = document.createElement('li');
-    const link = document.createElement('a');
+    // 실제 클릭 버튼을 만든다.
+    const button = document.createElement('button');
 
-    link.href = `#${section.id}`;
-    link.textContent = section.title;
+    // 버튼 타입을 명시해야 폼 submit 같은 오동작을 막을 수 있다.
+    button.type = 'button';
+    // CSS에서 메뉴 버튼처럼 꾸밀 클래스다.
+    button.className = 'learning-nav-link';
+    // 현재 버튼이 어떤 챕터를 가리키는지 저장한다.
+    button.dataset.sectionId = section.id;
+    // 화면에는 챕터 제목을 보여 준다.
+    button.textContent = section.title;
 
-    item.appendChild(link);
+    // 버튼을 누르면 바깥에서 넘겨준 onSelect 함수를 호출한다.
+    button.addEventListener('click', () => {
+      // onSelect가 함수일 때만 안전하게 실행한다.
+      if (typeof onSelect === 'function') {
+        // 어떤 챕터를 눌렀는지 section id를 넘겨 준다.
+        onSelect(section.id);
+      }
+    });
+
+    // li 안에 버튼을 넣는다.
+    item.appendChild(button);
+    // 전체 목록 안에 li를 넣는다.
     list.appendChild(item);
+    // 버튼 배열에도 저장해 둔다.
+    buttons.push(button);
   }
 
+  // 기존 메뉴를 비우고 새 목록으로 교체한다.
   nav.replaceChildren(list);
+
+  // 만든 버튼 배열을 반환한다.
+  return buttons;
+}
+
+// ------------------------------------------------------------
+// setActiveSectionLink(nav, activeSectionId)
+// ------------------------------------------------------------
+// 현재 활성 챕터 버튼에만 강조 클래스를 붙인다.
+// ------------------------------------------------------------
+export function setActiveSectionLink(nav, activeSectionId) {
+  // nav 안에 있는 모든 메뉴 버튼을 가져온다.
+  const links = nav.querySelectorAll('.learning-nav-link');
+
+  // 버튼을 하나씩 돌며 현재 챕터와 같은지 검사한다.
+  for (const link of links) {
+    // data-section-id가 현재 챕터 id와 같으면 true다.
+    const isActive = link.dataset.sectionId === activeSectionId;
+
+    // 활성 버튼에는 is-active 클래스를 붙인다.
+    link.classList.toggle('is-active', isActive);
+    // 스크린 리더도 현재 위치를 알 수 있게 만든다.
+    link.setAttribute('aria-current', isActive ? 'true' : 'false');
+  }
+}
+
+// ------------------------------------------------------------
+// setProgressText(progressText, text)
+// ------------------------------------------------------------
+// 상단 상태 카드 문구를 바꾸는 helper다.
+// ------------------------------------------------------------
+export function setProgressText(progressText, text) {
+  // progressText가 실제로 있을 때만 글자를 바꾼다.
+  if (progressText) {
+    // 화면에 보여 줄 새 문구를 넣는다.
+    progressText.textContent = text;
+  }
 }
