@@ -6,7 +6,7 @@
 // hooks 배열 덕분에 이전 상태와 계산 결과를 기억할 수 있다.
 // ============================================================
 
-import { currentComponent } from './component.js';
+import { currentComponent, currentRenderPhase } from './component.js';
 
 // ============================================================
 // useState(initialValue)
@@ -106,8 +106,14 @@ export function depsChanged(prevDeps, nextDeps) {
 }
 
 function getCurrentComponent(hookName) {
+  if (currentRenderPhase === 'child') {
+    throw new Error(
+      `${hookName} can only be used in the root component. Child components in this project must use props only.`
+    );
+  }
+
   if (!currentComponent) {
-    throw new Error(`${hookName} must be called while a component is rendering.`);
+    throw new Error(`${hookName} must be called while the root component is rendering.`);
   }
 
   return currentComponent;

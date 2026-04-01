@@ -31,6 +31,7 @@ export function h(tag, props, ...children) {
   const normalizedChildren = normalizeChildren(children);
 
   if (typeof tag === 'function') {
+    // Keep children on props so child components can stay props-driven.
     return {
       type: 'component',
       fn: tag,

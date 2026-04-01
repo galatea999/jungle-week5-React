@@ -7,36 +7,17 @@
 // diff와 patch를 이용해 화면을 업데이트한다.
 // ============================================================
 
-import { FunctionComponent } from './component.js';
+import { FunctionComponent, expandTree } from './component.js';
 import { renderVdom } from '../core/renderVdom.js';
 import { diff } from '../diff/diff.js';
 import { applyPatches } from '../patch/applyPatch.js';
+export { expandTree };
 
 // ------------------------------------------------------------
 // expandTree(vnode)
 // ------------------------------------------------------------
 // component VNode를 실행해서 일반 VNode 트리로 펼친다.
 // ------------------------------------------------------------
-export function expandTree(vnode) {
-  const safeNode = normalizeVNode(vnode);
-
-  if (safeNode == null) {
-    return null;
-  }
-
-  if (safeNode.type === 'text') {
-    return safeNode;
-  }
-
-  if (safeNode.type === 'component') {
-    return expandTree(safeNode.fn(safeNode.props ?? {}));
-  }
-
-  return {
-    ...safeNode,
-    children: (safeNode.children ?? []).map((child) => expandTree(child)),
-  };
-}
 
 // ------------------------------------------------------------
 // reconcile(container, oldVdom, newVdom)
@@ -74,17 +55,3 @@ export function renderApp(componentFn, container, props = {}) {
   return app;
 }
 
-function normalizeVNode(vnode) {
-  if (vnode == null || typeof vnode === 'boolean') {
-    return null;
-  }
-
-  if (typeof vnode === 'string' || typeof vnode === 'number') {
-    return {
-      type: 'text',
-      text: String(vnode),
-    };
-  }
-
-  return vnode;
-}

@@ -32,6 +32,7 @@ import { applyPatches } from '../patch/applyPatch.js';
 // 실행이 끝나면 null로 돌아간다.
 // ------------------------------------------------------------
 export let currentComponent = null;
+export let currentRenderPhase = 'idle';
 
 // ------------------------------------------------------------
 // setCurrentComponent(component)
@@ -42,6 +43,10 @@ export let currentComponent = null;
 // ------------------------------------------------------------
 export function setCurrentComponent(component) {
   currentComponent = component;
+}
+
+function setRenderPhase(phase) {
+  currentRenderPhase = phase;
 }
 
 // ------------------------------------------------------------
@@ -87,14 +92,19 @@ export class FunctionComponent {
   // ----------------------------------------------------------
   render() {
     this.hookIndex = 0;
+    let rootVdom;
+
     setCurrentComponent(this);
+    setRenderPhase('root');
 
     try {
-      const newVdom = this.fn(this.props);
-      return expandTree(newVdom);
+      rootVdom = this.fn(this.props);
     } finally {
       setCurrentComponent(null);
+      setRenderPhase('idle');
     }
+
+    return expandTree(rootVdom);
   }
 
   // ----------------------------------------------------------
@@ -222,11 +232,11 @@ export function createApp(componentFn, props = {}) {
   return new FunctionComponent(componentFn, props);
 }
 
-function expandTree(vnode) {
+export function expandTree(vnode) {
   const safeNode = normalizeVNode(vnode);
 
   if (safeNode.type === 'component') {
-    return expandTree(safeNode.fn(safeNode.props ?? {}));
+    return expandChildComponent(safeNode.fn, safeNode.props ?? {});
   }
 
   if (safeNode.type === 'text') {
@@ -237,6 +247,18 @@ function expandTree(vnode) {
     ...safeNode,
     children: (safeNode.children ?? []).map((child) => expandTree(child)),
   };
+}
+
+function expandChildComponent(componentFn, props) {
+  const previousPhase = currentRenderPhase;
+
+  setRenderPhase('child');
+
+  try {
+    return expandTree(componentFn(props));
+  } finally {
+    setRenderPhase(previousPhase);
+  }
 }
 
 function normalizeVNode(vnode) {
