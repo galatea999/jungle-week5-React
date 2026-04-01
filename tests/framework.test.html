@@ -64,6 +64,79 @@
         margin-top: 0;
         padding-left: 20px;
       }
+
+      .progress-note {
+        color: #4f5d73;
+        line-height: 1.7;
+      }
+
+      .progress-counts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0 0;
+      }
+
+      .progress-grid {
+        display: grid;
+        gap: 12px;
+      }
+
+      .phase-card {
+        border: 1px solid #d8dfeb;
+        border-radius: 12px;
+        background: #f9fbff;
+        padding: 14px;
+      }
+
+      .phase-header {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .phase-title {
+        margin-bottom: 0;
+        font-weight: 800;
+      }
+
+      .phase-summary {
+        margin: 8px 0 0;
+        color: #4f5d73;
+        line-height: 1.7;
+      }
+
+      .phase-task-list {
+        margin: 12px 0 0;
+        padding-left: 20px;
+      }
+
+      .phase-task-title {
+        font-weight: 700;
+      }
+
+      .phase-task-note {
+        margin: 4px 0 0;
+        color: #5a667a;
+        line-height: 1.7;
+      }
+
+      .status-completed {
+        background: #e8f8ee;
+        color: #17653a;
+      }
+
+      .status-in_progress {
+        background: #fff5db;
+        color: #8a5a00;
+      }
+
+      .status-pending {
+        background: #eef2ff;
+        color: #2d3f7a;
+      }
     </style>
   </head>
   <body>
@@ -71,12 +144,13 @@
       <h1>Mini React 테스트 스텁</h1>
       <p>
         이 페이지는 아직 자동 테스트를 실행하지 않습니다.
-        대신 구현이 끝난 뒤 무엇을 검증해야 하는지 목록으로 보여줍니다.
+        대신 현재 구현 진행 현황과, 구현이 끝난 뒤 무엇을 검증해야 하는지 목록을 함께 보여줍니다.
       </p>
 
       <!-- 새 시나리오를 추가했을 때 브라우저에서 바로 다시 그려 볼 수 있도록
            단순 refresh 버튼을 두었다. -->
       <button id="refresh-button" type="button">목록 다시 그리기</button>
+      <div id="progress"></div>
       <div id="results"></div>
     </main>
 
@@ -87,8 +161,198 @@
       import { runHookStubTests } from './hooks.test.js';
       import { runIntegrationStubTests } from './integration.test.js';
 
+      // 이 데이터는 "현재 로컬 코드 상태를 사람이 읽고 판정한 진행 현황"이다.
+      // 실제 자동 테스트 결과와는 다르므로, 아래 시나리오 목록과는 별도로 보여 준다.
+      const PROJECT_PROGRESS = [
+        {
+          phase: 'Phase 1: 기반 구축',
+          status: 'completed',
+          summary: 'FunctionComponent/useState, 학습 페이지 레이아웃, Component 섹션과 컴포넌트 테스트 골격이 모두 코드상 준비되었습니다.',
+          tasks: [
+            {
+              name: 'A: FunctionComponent + useState 기본 동작',
+              status: 'completed',
+              note: 'src/framework/component.js와 src/framework/hooks.js에 mount/update/useState 기본 구현이 있습니다.',
+            },
+            {
+              name: 'B: 페이지 레이아웃 + 코드 에디터 껍데기',
+              status: 'completed',
+              note: 'src/ui/layout.js와 src/ui/codePlayground.js가 존재하고, 레이아웃과 에디터/프리뷰 껍데기가 준비되어 있습니다.',
+            },
+            {
+              name: 'C: Component 섹션 콘텐츠 + 단위 테스트 골격',
+              status: 'completed',
+              note: 'src/pages/componentSection.js와 tests/component.test.js에 학습 내용과 테스트 시나리오 골격이 준비되어 있습니다.',
+            },
+          ],
+        },
+        {
+          phase: 'Phase 2: 연결',
+          status: 'completed',
+          summary: 'useEffect/useMemo와 Hooks 콘텐츠가 준비되었고, component/hooks/state/workshop 섹션의 직접 해보기 영역도 playground로 연결되었습니다.',
+          tasks: [
+            {
+              name: 'A+B: 프레임워크를 코드 에디터에서 실행 가능하게 연결',
+              status: 'completed',
+              note: 'src/ui/codePlayground.js가 framework API를 실행하고, src/pages/componentSection.js · hooksSection.js · stateSection.js · workshopSection.js가 실제 playground 카드를 붙이고 있습니다.',
+            },
+            {
+              name: 'A: useEffect, useMemo 완성',
+              status: 'completed',
+              note: 'src/framework/hooks.js에 useEffect, useMemo 구현이 들어가 있습니다.',
+            },
+            {
+              name: 'C: Hooks 섹션 콘텐츠 + 테스트 확장',
+              status: 'completed',
+              note: 'src/pages/hooksSection.js와 tests/hooks.test.js가 확장되어 학습 흐름과 테스트 시나리오가 정리되어 있습니다.',
+            },
+          ],
+        },
+        {
+          phase: 'Phase 3: 콘텐츠 완성',
+          status: 'in_progress',
+          summary: '모든 섹션은 페이지에 통합되었지만, diff 시각화의 실제 화면 연결과 통합 테스트 assertion 전환은 아직 진행 중입니다.',
+          tasks: [
+            {
+              name: 'B+C: 모든 섹션을 페이지에 통합',
+              status: 'completed',
+              note: 'src/app.js에서 component/hooks/state/vdom/workshop 섹션이 모두 네비게이션 기반 챕터 화면으로 통합되어 있고, 직접 해보기 영역도 각 섹션에 붙어 있습니다.',
+            },
+            {
+              name: 'C: 워크숍 섹션 + 통합 테스트',
+              status: 'in_progress',
+              note: 'src/pages/workshopSection.js와 tests/integration.test.js는 준비되었지만, 통합 테스트는 아직 시나리오 수준이며 실제 assertion은 남아 있습니다.',
+            },
+            {
+              name: 'B: diff 시각화 패널 + CSS 마무리',
+              status: 'in_progress',
+              note: 'src/ui/diffVisualizer.js와 관련 CSS는 존재하지만, 현재 vdom 섹션에는 placeholder만 붙어 있어 실제 화면 연결이 남아 있습니다.',
+            },
+          ],
+        },
+        {
+          phase: 'Phase 4: 발표 준비',
+          status: 'pending',
+          summary: '엣지 케이스 점검, 실제 테스트 검증, 발표용 README와 데모 흐름 정리는 아직 시작 전 단계입니다.',
+          tasks: [
+            {
+              name: '전원: 엣지 케이스 수정, 테스트 검증',
+              status: 'pending',
+              note: '현재 tests 폴더는 시나리오 중심이며, 자동 assertion과 최종 검증 단계는 아직 남아 있습니다.',
+            },
+            {
+              name: 'B: README.md 작성',
+              status: 'pending',
+              note: '발표/최종 제출 기준의 README 정리는 아직 이번 단계 범위 밖입니다.',
+            },
+            {
+              name: '전원: 발표 데모 시나리오 확인',
+              status: 'pending',
+              note: '실제 연결이 더 끝난 뒤 발표용 시연 순서를 점검하는 단계가 남아 있습니다.',
+            },
+          ],
+        },
+      ];
+
+      const STATUS_LABELS = {
+        completed: '완료',
+        in_progress: '진행 중',
+        pending: '대기',
+      };
+
+      const progressRoot = document.querySelector('#progress');
       const resultsRoot = document.querySelector('#results');
       const refreshButton = document.querySelector('#refresh-button');
+
+      function createStatusBadge(status) {
+        const badge = document.createElement('span');
+        badge.className = `status status-${status}`;
+        badge.textContent = STATUS_LABELS[status] || status;
+        return badge;
+      }
+
+      function renderProgress(phases) {
+        const section = document.createElement('section');
+        const heading = document.createElement('h2');
+        const note = document.createElement('p');
+        const counts = document.createElement('div');
+        const grid = document.createElement('div');
+
+        heading.textContent = '통합 진행 현황';
+        note.className = 'progress-note';
+        note.textContent =
+          '아래 상태는 현재 저장소의 코드 구조를 기준으로 수동 판정한 결과입니다. 자동 테스트 통과 여부와는 별개로, 구현 연결 정도를 보여 줍니다.';
+        counts.className = 'progress-counts';
+        grid.className = 'progress-grid';
+
+        const phaseCounts = phases.reduce(
+          (acc, phase) => {
+            acc[phase.status] += 1;
+            return acc;
+          },
+          { completed: 0, in_progress: 0, pending: 0 },
+        );
+
+        counts.append(
+          createCountBadge('완료된 Phase', phaseCounts.completed),
+          createCountBadge('진행 중 Phase', phaseCounts.in_progress),
+          createCountBadge('대기 Phase', phaseCounts.pending),
+        );
+
+        for (const phase of phases) {
+          grid.appendChild(renderPhaseCard(phase));
+        }
+
+        section.append(heading, note, counts, grid);
+        return section;
+      }
+
+      function createCountBadge(label, count) {
+        const badge = document.createElement('span');
+        badge.className = 'status';
+        badge.textContent = `${label}: ${count}`;
+        return badge;
+      }
+
+      function renderPhaseCard(phase) {
+        const card = document.createElement('article');
+        const header = document.createElement('div');
+        const title = document.createElement('p');
+        const summary = document.createElement('p');
+        const list = document.createElement('ul');
+
+        card.className = 'phase-card';
+        header.className = 'phase-header';
+        title.className = 'phase-title';
+        summary.className = 'phase-summary';
+        list.className = 'phase-task-list';
+
+        title.textContent = phase.phase;
+        summary.textContent = phase.summary;
+
+        header.append(title, createStatusBadge(phase.status));
+
+        for (const task of phase.tasks) {
+          const item = document.createElement('li');
+          const taskRow = document.createElement('div');
+          const taskTitle = document.createElement('span');
+          const taskNote = document.createElement('p');
+
+          taskRow.className = 'phase-header';
+          taskTitle.className = 'phase-task-title';
+          taskNote.className = 'phase-task-note';
+
+          taskTitle.textContent = task.name;
+          taskNote.textContent = task.note;
+
+          taskRow.append(taskTitle, createStatusBadge(task.status));
+          item.append(taskRow, taskNote);
+          list.appendChild(item);
+        }
+
+        card.append(header, summary, list);
+        return card;
+      }
 
       // 한 줄 설명 항목을 "라벨: 내용" 형태로 붙이는 helper다.
       // 예: 이유, 대상 Hook, 테스트 상황, 다음 단계
@@ -163,6 +427,7 @@
 
       // 세 종류의 테스트 시나리오를 한 번에 다시 그린다.
       function renderAll() {
+        progressRoot.replaceChildren(renderProgress(PROJECT_PROGRESS));
         resultsRoot.replaceChildren(
           renderGroup('컴포넌트 테스트', runComponentStubTests()),
           renderGroup('Hook 테스트', runHookStubTests()),

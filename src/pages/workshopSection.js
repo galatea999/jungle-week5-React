@@ -10,6 +10,8 @@
 // 어떤 부품을 만들고, 최종적으로 어떤 모양이 나와야 하는지를 분명히 보여 준다.
 // ============================================================
 
+import { createPracticePlaygroundCard } from './practicePlayground.js';
+
 // 워크숍에서 학생이 직접 만들 조각들이다.
 // "작은 컴포넌트를 나눠 만든 뒤 App에서 합친다"는 감각을 강조하려고
 // 일부러 부품 이름을 분리해 적었다.
@@ -54,19 +56,21 @@ const WORKSHOP_CHALLENGE = {
 // 학생은 각 부품을 채워 넣으면서 지금까지 배운 내용을 한 번 더 정리하게 된다.
 export const WORKSHOP_PRACTICE = {
   starterCode: `function Header(props) {
-  return h('header', null, props.title);
+  return h('header', null,
+    h('h2', null, props.title)
+  );
 }
 
 function ProfileCard(props) {
   return h('article', null,
-    h('h3', null, props.name)
-    // TODO: track, intro도 함께 보여 주세요.
+    h('h3', null, props.name),
+    h('p', null, 'TODO: track, intro도 함께 보여 주세요.')
   );
 }
 
 function SkillList(props) {
   return h('ul', null,
-    // TODO: props.skills 배열을 목록으로 렌더링해 보세요.
+    h('li', null, props.skills[0])
   );
 }
 
@@ -80,9 +84,12 @@ function App() {
     }),
     h(SkillList, {
       skills: ['Component', 'State', 'Hooks'],
-    })
+    }),
+    h('p', null, 'TODO: selectedSkill state를 연결해 보세요.')
   );
-}`,
+}
+
+return App;`,
   answerCode: `function Header(props) {
   return h('header', null,
     h('h2', null, props.title)
@@ -99,7 +106,13 @@ function ProfileCard(props) {
 
 function SkillList(props) {
   return h('ul', null,
-    ...props.skills.map((skill) => h('li', null, skill))
+    ...props.skills.map((skill) =>
+      h('li', null,
+        h('button', {
+          onclick: () => props.onSelect(skill),
+        }, skill)
+      )
+    )
   );
 }
 
@@ -115,13 +128,13 @@ function App() {
     }),
     h(SkillList, {
       skills: ['Component', 'State', 'Hooks'],
+      onSelect: setSelectedSkill,
     }),
-    h('button', {
-      onclick: () => setSelectedSkill('Hooks'),
-    }, '선택 바꾸기'),
     h('p', null, '현재 선택된 스킬: ' + selectedSkill)
   );
-}`,
+}
+
+return App;`,
 };
 
 // 섹션 5 전체를 조립하는 공개 함수다.
@@ -132,16 +145,21 @@ export function createWorkshopSection() {
 
   section.appendChild(createHeader(
     '5. 컴포넌트 조립 워크숍',
-    '앞에서 배운 내용을 한 번에 써보는 종합 실습 섹션의 스텁입니다.',
+    '앞에서 배운 내용을 한 번에 써보는 종합 실습 섹션입니다.',
   ));
 
   section.appendChild(createChecklistCard('조립할 부품', WORKSHOP_PARTS));
   section.appendChild(createParagraphCard(
     '워크숍 목표',
-    '작은 컴포넌트를 여러 개 만든 뒤, App에서 조립해서 하나의 화면을 완성하는 경험을 제공할 예정입니다.',
+    '작은 컴포넌트를 여러 개 만든 뒤, App에서 조립해서 하나의 화면을 완성하는 경험을 제공합니다.',
   ));
   section.appendChild(createCodeCard('완성 목표 예시', WORKSHOP_GOAL));
-  section.appendChild(createCodeCard('직접 해보기 starter code', WORKSHOP_PRACTICE.starterCode));
+  section.appendChild(createPracticePlaygroundCard({
+    title: '직접 해보기',
+    fileName: 'WorkshopPractice.js',
+    description: '먼저 정적인 카드 앱을 만든 뒤, 마지막에 selectedSkill state와 클릭 이벤트를 붙여 보세요.',
+    initialCode: WORKSHOP_PRACTICE.starterCode,
+  }));
   section.appendChild(createCodeCard('한 가지 가능한 답안', WORKSHOP_PRACTICE.answerCode));
   section.appendChild(createChallengeCard(WORKSHOP_CHALLENGE));
 
