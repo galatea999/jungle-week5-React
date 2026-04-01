@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Framework Test Stub</title>
     <style>
+      /* 이 페이지는 "테스트 실행기"라기보다 "테스트 시나리오 뷰어"에 가깝다.
+         그래서 화려한 UI보다는 각 항목을 읽기 쉬운 문서형 레이아웃으로 맞췄다. */
       body {
         margin: 0;
         padding: 24px;
@@ -33,7 +35,7 @@
       }
 
       li + li {
-        margin-top: 8px;
+        margin-top: 12px;
       }
 
       .status {
@@ -45,6 +47,23 @@
         font-size: 12px;
         font-weight: 700;
       }
+
+      .result-title-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .result-title {
+        margin-bottom: 0;
+        font-weight: 700;
+      }
+
+      .details-list {
+        margin-top: 0;
+        padding-left: 20px;
+      }
     </style>
   </head>
   <body>
@@ -55,11 +74,15 @@
         대신 구현이 끝난 뒤 무엇을 검증해야 하는지 목록으로 보여줍니다.
       </p>
 
+      <!-- 새 시나리오를 추가했을 때 브라우저에서 바로 다시 그려 볼 수 있도록
+           단순 refresh 버튼을 두었다. -->
       <button id="refresh-button" type="button">목록 다시 그리기</button>
       <div id="results"></div>
     </main>
 
     <script type="module">
+      // 각 모듈은 "실행 결과"라기보다 "테스트 시나리오 데이터"를 내보낸다.
+      // 이 HTML은 그 데이터를 받아 읽기 좋은 형태로 렌더링하는 역할을 맡는다.
       import { runComponentStubTests } from './component.test.js';
       import { runHookStubTests } from './hooks.test.js';
       import { runIntegrationStubTests } from './integration.test.js';
@@ -67,6 +90,40 @@
       const resultsRoot = document.querySelector('#results');
       const refreshButton = document.querySelector('#refresh-button');
 
+      // 한 줄 설명 항목을 "라벨: 내용" 형태로 붙이는 helper다.
+      // 예: 이유, 대상 Hook, 테스트 상황, 다음 단계
+      function appendDetail(container, label, text) {
+        if (!text) return;
+
+        const paragraph = document.createElement('p');
+        const strong = document.createElement('strong');
+
+        strong.textContent = `${label}: `;
+        paragraph.append(strong, text);
+        container.appendChild(paragraph);
+      }
+
+      // 여러 개의 검증 포인트처럼 리스트가 필요한 경우에 쓰는 helper다.
+      function appendListDetail(container, label, items) {
+        if (!Array.isArray(items) || items.length === 0) return;
+
+        const heading = document.createElement('p');
+        const list = document.createElement('ul');
+
+        heading.textContent = label;
+        list.className = 'details-list';
+
+        for (const item of items) {
+          const li = document.createElement('li');
+          li.textContent = item;
+          list.appendChild(li);
+        }
+
+        container.append(heading, list);
+      }
+
+      // 테스트 그룹 하나를 section으로 렌더링한다.
+      // 컴포넌트 / Hook / 통합 테스트가 모두 같은 패턴을 쓰므로 공통 함수로 묶었다.
       function renderGroup(title, results) {
         const section = document.createElement('section');
         const heading = document.createElement('h2');
@@ -77,20 +134,26 @@
 
         for (const result of results) {
           const item = document.createElement('li');
+          const titleRow = document.createElement('div');
+          const name = document.createElement('p');
           const badge = document.createElement('span');
-          const reason = document.createElement('p');
-          const nextStep = document.createElement('p');
 
+          titleRow.className = 'result-title-row';
+          name.className = 'result-title';
           badge.className = 'status';
+
+          name.textContent = result.name;
           badge.textContent = result.status;
 
-          item.textContent = `${result.name} `;
-          item.appendChild(badge);
+          titleRow.append(name, badge);
+          item.appendChild(titleRow);
 
-          reason.textContent = `이유: ${result.reason}`;
-          nextStep.textContent = `다음 단계: ${result.nextStep}`;
+          appendDetail(item, '이유', result.reason);
+          appendDetail(item, '대상 Hook', result.hook);
+          appendDetail(item, '테스트 상황', result.setup);
+          appendListDetail(item, '검증 포인트', result.checkpoints);
+          appendDetail(item, '다음 단계', result.nextStep);
 
-          item.append(reason, nextStep);
           list.appendChild(item);
         }
 
@@ -98,6 +161,7 @@
         return section;
       }
 
+      // 세 종류의 테스트 시나리오를 한 번에 다시 그린다.
       function renderAll() {
         resultsRoot.replaceChildren(
           renderGroup('컴포넌트 테스트', runComponentStubTests()),

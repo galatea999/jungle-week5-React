@@ -1,11 +1,18 @@
 // ============================================================
-// workshopSection.js — 섹션 7 스텁
+// workshopSection.js — 섹션 5 학습 콘텐츠
 // ============================================================
 //
-// 이 파일은 마지막 종합 실습 섹션의 뼈대다.
-// 학생이 직접 컴포넌트를 조립해 하나의 작은 앱을 완성하는 공간이 된다.
+// 이 파일은 마지막 종합 실습 섹션을 만든다.
+// 학생이 앞에서 배운 Component, Props, State, Hooks를 조합해
+// 하나의 작은 앱을 직접 완성하는 흐름을 보여 주는 자리다.
+//
+// 그래서 이 섹션은 설명보다 "조립 목표가 또렷한가?"가 더 중요하다.
+// 어떤 부품을 만들고, 최종적으로 어떤 모양이 나와야 하는지를 분명히 보여 준다.
 // ============================================================
 
+// 워크숍에서 학생이 직접 만들 조각들이다.
+// "작은 컴포넌트를 나눠 만든 뒤 App에서 합친다"는 감각을 강조하려고
+// 일부러 부품 이름을 분리해 적었다.
 const WORKSHOP_PARTS = [
   'Header 컴포넌트',
   'ProfileCard 컴포넌트',
@@ -13,6 +20,8 @@ const WORKSHOP_PARTS = [
   '루트 App 컴포넌트',
 ];
 
+// 최종적으로 어떤 조립 결과를 목표로 삼는지 보여 주는 예시 코드다.
+// 학생이 이 코드를 보고 역으로 "필요한 부품이 무엇인지" 떠올릴 수 있어야 한다.
 const WORKSHOP_GOAL = `function App() {
   return h('main', { class: 'profile-app' },
     h(Header, { title: 'React 학습 카드' }),
@@ -21,6 +30,7 @@ const WORKSHOP_GOAL = `function App() {
   );
 }`;
 
+// 섹션 5 전체를 조립하는 공개 함수다.
 export function createWorkshopSection() {
   const section = document.createElement('section');
   section.id = 'workshop-section';
@@ -45,6 +55,7 @@ export function createWorkshopSection() {
   return section;
 }
 
+// 섹션 헤더 helper다.
 function createHeader(title, description) {
   const wrapper = document.createElement('div');
   const heading = document.createElement('h2');
@@ -57,6 +68,7 @@ function createHeader(title, description) {
   return wrapper;
 }
 
+// 실습 준비물을 체크리스트처럼 읽게 만드는 helper다.
 function createChecklistCard(title, items) {
   const article = createCardShell(title);
   const list = document.createElement('ul');
@@ -71,6 +83,7 @@ function createChecklistCard(title, items) {
   return article;
 }
 
+// 설명 문장 카드 helper다.
 function createParagraphCard(title, text) {
   const article = createCardShell(title);
   const paragraph = document.createElement('p');
@@ -81,6 +94,7 @@ function createParagraphCard(title, text) {
   return article;
 }
 
+// 완성 목표 예시 코드를 보여 주는 helper다.
 function createCodeCard(title, code) {
   const article = createCardShell(title);
   const pre = document.createElement('pre');
@@ -93,6 +107,7 @@ function createCodeCard(title, code) {
   return article;
 }
 
+// 카드 공통 껍데기 helper다.
 function createCardShell(title) {
   const article = document.createElement('article');
   const heading = document.createElement('h3');
