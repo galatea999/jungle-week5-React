@@ -50,6 +50,80 @@ const WORKSHOP_CHALLENGE = {
   hint: '먼저 정적인 화면을 완성한 뒤, 마지막 단계에서 selectedSkill state와 클릭 이벤트를 붙이면 훨씬 수월합니다.',
 };
 
+// 마지막 섹션은 종합 실습이므로 starter code도 일부러 빈 칸이 남아 있는 형태로 준비한다.
+// 학생은 각 부품을 채워 넣으면서 지금까지 배운 내용을 한 번 더 정리하게 된다.
+export const WORKSHOP_PRACTICE = {
+  starterCode: `function Header(props) {
+  return h('header', null, props.title);
+}
+
+function ProfileCard(props) {
+  return h('article', null,
+    h('h3', null, props.name)
+    // TODO: track, intro도 함께 보여 주세요.
+  );
+}
+
+function SkillList(props) {
+  return h('ul', null,
+    // TODO: props.skills 배열을 목록으로 렌더링해 보세요.
+  );
+}
+
+function App() {
+  return h('main', { class: 'profile-app' },
+    h(Header, { title: 'React 학습 카드' }),
+    h(ProfileCard, {
+      name: '정글',
+      track: 'Frontend',
+      intro: '작은 컴포넌트를 조립하는 중입니다.',
+    }),
+    h(SkillList, {
+      skills: ['Component', 'State', 'Hooks'],
+    })
+  );
+}`,
+  answerCode: `function Header(props) {
+  return h('header', null,
+    h('h2', null, props.title)
+  );
+}
+
+function ProfileCard(props) {
+  return h('article', { class: 'profile-card' },
+    h('h3', null, props.name),
+    h('p', null, '트랙: ' + props.track),
+    h('p', null, props.intro)
+  );
+}
+
+function SkillList(props) {
+  return h('ul', null,
+    ...props.skills.map((skill) => h('li', null, skill))
+  );
+}
+
+function App() {
+  const [selectedSkill, setSelectedSkill] = useState('Component');
+
+  return h('main', { class: 'profile-app' },
+    h(Header, { title: 'React 학습 카드' }),
+    h(ProfileCard, {
+      name: '정글',
+      track: 'Frontend',
+      intro: '작은 컴포넌트를 조립하는 중입니다.',
+    }),
+    h(SkillList, {
+      skills: ['Component', 'State', 'Hooks'],
+    }),
+    h('button', {
+      onclick: () => setSelectedSkill('Hooks'),
+    }, '선택 바꾸기'),
+    h('p', null, '현재 선택된 스킬: ' + selectedSkill)
+  );
+}`,
+};
+
 // 섹션 5 전체를 조립하는 공개 함수다.
 export function createWorkshopSection() {
   const section = document.createElement('section');
@@ -67,6 +141,8 @@ export function createWorkshopSection() {
     '작은 컴포넌트를 여러 개 만든 뒤, App에서 조립해서 하나의 화면을 완성하는 경험을 제공할 예정입니다.',
   ));
   section.appendChild(createCodeCard('완성 목표 예시', WORKSHOP_GOAL));
+  section.appendChild(createCodeCard('직접 해보기 starter code', WORKSHOP_PRACTICE.starterCode));
+  section.appendChild(createCodeCard('한 가지 가능한 답안', WORKSHOP_PRACTICE.answerCode));
   section.appendChild(createChallengeCard(WORKSHOP_CHALLENGE));
 
   return section;

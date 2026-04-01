@@ -32,30 +32,30 @@
 
 - 첫 섹션인 `Component와 Props`를 만듭니다.
 - 학생이 "컴포넌트는 UI 조각", "props는 부모가 자식에게 주는 값"이라는 감각을 잡도록 설계되어 있습니다.
-- 아직 playground는 연결되지 않았고, STUB 카드로 다음 작업 위치를 안내합니다.
+- playground는 아직 연결되지 않았지만, starter code와 한 가지 가능한 답안을 함께 준비해 두었습니다.
 
 ### `hooksSection.js`
 
 - `useState`, `useEffect`, `useMemo`를 다룹니다.
-- 이 파일은 현재 `설명 -> 예제 코드 -> 직접 해보기 -> 챌린지` 흐름이 가장 또렷하게 들어가 있습니다.
+- 이 파일은 현재 `설명 -> 예제 코드 -> 직접 해보기 -> 답안 예시 -> 챌린지` 흐름이 가장 또렷하게 들어가 있습니다.
 - 역할 A가 Hook 구현을 붙이고, 역할 B가 playground를 연결하면 바로 실습형 섹션이 될 수 있도록 준비되어 있습니다.
 
 ### `stateSection.js`
 
 - `Lifting State Up` 개념을 설명합니다.
 - 여러 컴포넌트가 같은 데이터를 쓸 때 왜 부모로 state를 올리는지 문장과 예제로 보여 줍니다.
-- 현재는 설명 중심이고, 입력창이 함께 바뀌는 데모는 STUB 상태입니다.
+- starter code와 답안 예시가 있어, 나중에 playground가 붙으면 바로 state 올리기 실습으로 연결할 수 있습니다.
 
 ### `vdomSection.js`
 
 - `setState -> re-render -> diff -> patch` 흐름을 소개합니다.
-- 지금은 시각화 패널 자리를 placeholder로 만들었고, 나중에 `diffVisualizer.js`와 연결할 수 있게 구조를 비워 둔 상태입니다.
+- 이전/다음 트리와 patch 예측용 starter/answer를 넣어 두었고, 시각화 패널은 나중에 `diffVisualizer.js`와 연결할 수 있게 비워 둔 상태입니다.
 
 ### `workshopSection.js`
 
 - 마지막 종합 실습 섹션입니다.
 - 학생이 어떤 부품을 만들고 어떤 모양의 App을 완성해야 하는지 목표를 분명히 보여 줍니다.
-- 도전 과제도 STUB로 준비되어 있어 이후 확장 포인트를 확인할 수 있습니다.
+- starter code와 답안 예시가 있어 최종 워크숍을 playground 기반 실습으로 확장하기 쉬운 상태입니다.
 
 ## 확장할 때 지키면 좋은 규칙
 

@@ -53,6 +53,60 @@ const STATE_CHALLENGE = {
   hint: '먼저 "누가 이 데이터를 진짜로 소유해야 하는가?"를 정한 뒤, 자식에서 state를 지우고 props만 남겨 보세요.',
 };
 
+// state 올리기 전/후 코드를 한 쌍으로 준비해 두면
+// playground 연결 시 "무엇을 바꿔야 하는가"가 훨씬 분명해진다.
+export const STATE_PRACTICE = {
+  starterCode: `function TemperatureInput(props) {
+  const [value, setValue] = useState('');
+
+  return h('label', null,
+    props.label,
+    h('input', {
+      value: value,
+      oninput: (event) => setValue(event.target.value),
+    })
+  );
+}
+
+function ResultCard(props) {
+  return h('p', null, '현재 온도: ' + props.value);
+}
+
+function App() {
+  return h('section', null,
+    h(TemperatureInput, { label: '섭씨' }),
+    h(ResultCard, { value: '' })
+    // TODO: 두 컴포넌트가 같은 값을 보도록 state 위치를 올려 보세요.
+  );
+}`,
+  answerCode: `function TemperatureInput(props) {
+  return h('label', null,
+    props.label,
+    h('input', {
+      value: props.value,
+      oninput: (event) => props.onChange(event.target.value),
+    })
+  );
+}
+
+function ResultCard(props) {
+  return h('p', null, '현재 온도: ' + props.value);
+}
+
+function App() {
+  const [temperature, setTemperature] = useState('');
+
+  return h('section', null,
+    h(TemperatureInput, {
+      label: '섭씨',
+      value: temperature,
+      onChange: setTemperature,
+    }),
+    h(ResultCard, { value: temperature })
+  );
+}`,
+};
+
 // 섹션 3 전체를 조립하는 공개 함수다.
 // state를 어디에 두는지가 핵심이므로,
 // 설명 카드와 절차 카드, 예제 코드를 순서대로 배치했다.
@@ -72,6 +126,8 @@ export function createStateSection() {
   ));
   section.appendChild(createListCard('실행 순서', LIFTING_STEPS));
   section.appendChild(createCodeCard('온도 변환기 예제 스텁', TEMPERATURE_EXAMPLE));
+  section.appendChild(createCodeCard('직접 해보기 starter code', STATE_PRACTICE.starterCode));
+  section.appendChild(createCodeCard('한 가지 가능한 답안', STATE_PRACTICE.answerCode));
   section.appendChild(createChallengeCard(STATE_CHALLENGE));
 
   return section;

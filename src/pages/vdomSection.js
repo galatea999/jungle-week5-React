@@ -50,6 +50,30 @@ const VDOM_CHALLENGE = {
   hint: '루트에서부터 같은 태그끼리 차례대로 비교하고, 바뀐 텍스트와 새로 생긴 노드를 따로 생각해 보세요.',
 };
 
+// Virtual DOM 섹션은 코드 실행형 과제보다 "비교와 예측"이 중심이라
+// starter와 answer도 실제 patch 객체 대신 읽기 쉬운 의사 코드 형태로 준비한다.
+export const VDOM_PRACTICE = {
+  starterCode: `const beforeTree = h('ul', null,
+  h('li', null, 'React'),
+  h('li', null, 'Hooks')
+);
+
+const afterTree = h('ul', null,
+  h('li', null, 'React'),
+  h('li', null, 'Hooks!'),
+  h('li', null, 'Virtual DOM')
+);
+
+const expectedChanges = [
+  // TODO: 바뀌는 점을 순서대로 적어 보세요.
+];`,
+  answerCode: `const expectedChanges = [
+  '두 번째 li의 텍스트를 "Hooks"에서 "Hooks!"로 바꾼다.',
+  '세 번째 li("Virtual DOM")를 새로 추가한다.',
+  '루트 ul과 첫 번째 li는 그대로 재사용한다.',
+];`,
+};
+
 // 섹션 4 전체를 조립하는 공개 함수다.
 // 현재는 "설명 가능한 자리"를 먼저 만드는 것이 목적이라
 // 실제 시각화 대신 placeholder 패널을 배치한다.
@@ -66,6 +90,8 @@ export function createVdomSection() {
   section.appendChild(createPipelineCard());
   section.appendChild(createCodeCard('챌린지 예시: 이전 트리', BEFORE_TREE_EXAMPLE));
   section.appendChild(createCodeCard('챌린지 예시: 다음 트리', AFTER_TREE_EXAMPLE));
+  section.appendChild(createCodeCard('직접 해보기 starter code', VDOM_PRACTICE.starterCode));
+  section.appendChild(createCodeCard('한 가지 가능한 답안', VDOM_PRACTICE.answerCode));
   section.appendChild(createPlaceholderPanel(
     '이전 VDOM / 다음 VDOM 패널',
     '나중에는 diffVisualizer.js를 붙여서 이전 트리와 다음 트리를 나란히 보여줄 예정입니다.',

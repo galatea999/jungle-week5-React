@@ -29,9 +29,9 @@ const HOOK_RULES = [
 ];
 
 // 각 Hook 카드의 원본 데이터다.
-// 이름, 한 줄 요약, 자세한 설명, 예제 코드, 직접 해보기, 챌린지를 한 곳에 모아 두면
+// 이름, 한 줄 요약, 자세한 설명, 예제 코드, 직접 해보기, 답안 예시, 챌린지를 한 곳에 모아 두면
 // 화면 구조를 바꾸더라도 학습 내용 자체는 따로 관리할 수 있다.
-const HOOK_LESSONS = [
+export const HOOK_PRACTICES = [
   {
     name: 'useState',
     summary: '버튼, 입력창처럼 바뀌는 값을 화면이 기억하게 만드는 Hook입니다.',
@@ -51,6 +51,20 @@ const HOOK_LESSONS = [
       '감소 버튼을 하나 더 만들어 같은 state를 여러 이벤트에서 바꿔 본다.',
       'count * 2 값을 함께 출력해서 한 state를 여러 DOM 노드가 같이 읽는 모습을 확인한다.',
     ],
+    answerCode: `function Counter() {
+  const [count, setCount] = useState(0);
+
+  return h('section', null,
+    h('p', null, '현재 숫자: ' + count),
+    h('p', null, count % 2 === 0 ? '짝수입니다.' : '홀수입니다.'),
+    h('button', {
+      onclick: () => setCount(count + 1),
+    }, '+1'),
+    h('button', {
+      onclick: () => setCount(count - 1),
+    }, '-1')
+  );
+}`,
     challenge: '카운트 숫자 아래에 짝수/홀수 문구를 추가해서 state 변화가 화면 여러 곳에 동시에 반영되게 만들어 보세요.',
   },
   {
@@ -77,6 +91,27 @@ const HOOK_LESSONS = [
       '`[name]`을 유지한 채 입력값을 바꿨을 때 어떤 순간에 로그가 찍혀야 하는지 말로 설명해 본다.',
       '의존성 배열을 없애면 왜 매 렌더링마다 effect가 실행되는지 친구에게 설명해 본다.',
     ],
+    answerCode: `function WelcomeLogger() {
+  const [name, setName] = useState('정글');
+  const [track, setTrack] = useState('Frontend');
+
+  useEffect(() => {
+    console.log(name + ' 이름이 바뀌었어요.');
+  }, [name]);
+
+  return h('section', null,
+    h('input', {
+      value: name,
+      oninput: (event) => setName(event.target.value),
+    }),
+    h('input', {
+      value: track,
+      oninput: (event) => setTrack(event.target.value),
+    }),
+    h('p', null, '안녕하세요, ' + name),
+    h('p', null, '트랙: ' + track)
+  );
+}`,
     challenge: 'name 말고 track state를 하나 더 추가하고, 이름이 바뀔 때만 로그가 찍히도록 deps를 설계해 보세요.',
   },
   {
@@ -96,6 +131,20 @@ const HOOK_LESSONS = [
       '총점 아래에 선택된 탭 같은 별도 state를 추가하고, 그 값만 바뀔 때 memo가 재사용돼야 하는지 생각해 본다.',
       '총점뿐 아니라 평균도 계산해 보면서 어떤 계산을 memo로 감싸면 좋을지 분류해 본다.',
     ],
+    answerCode: `function ScoreSummary(props) {
+  const total = useMemo(() => {
+    return props.scores.reduce((sum, score) => sum + score, 0);
+  }, [props.scores]);
+
+  const max = useMemo(() => {
+    return props.scores.reduce((best, score) => Math.max(best, score), 0);
+  }, [props.scores]);
+
+  return h('section', null,
+    h('p', null, '총점: ' + total),
+    h('p', null, '최고점: ' + max)
+  );
+}`,
     challenge: '총점과 최고점을 각각 따로 memo로 계산하고, scores가 바뀔 때만 다시 계산되게 구성해 보세요.',
   },
 ];
@@ -128,9 +177,9 @@ export function createHooksSection() {
     'Hook은 함수형 컴포넌트가 매 렌더링마다 완전히 새로 실행되더라도, 이전에 저장한 값과 계산 결과를 같은 자리에서 다시 꺼내 쓸 수 있게 도와주는 장치입니다.',
   ));
 
-  // HOOK_LESSONS 데이터를 순회하며 Hook별 학습 카드를 반복해서 만든다.
+  // HOOK_PRACTICES 데이터를 순회하며 Hook별 학습 카드를 반복해서 만든다.
   // 데이터와 UI 구조가 분리되어 있어, 나중에 카드 순서를 바꾸거나 항목을 추가하기 쉽다.
-  for (const lesson of HOOK_LESSONS) {
+  for (const lesson of HOOK_PRACTICES) {
     section.appendChild(createHookLessonCard(lesson));
   }
 
@@ -183,21 +232,19 @@ function createParagraphCard(title, text) {
 }
 
 // Hook 하나를 설명하는 큰 카드 helper다.
-// 하나의 Hook 안에도 "설명 -> 코드 -> 직접 해보기 -> 챌린지" 흐름이 반복되도록 묶었다.
-function createHookLessonCard({ name, summary, explanation, starter, tryIt, challenge }) {
+// 하나의 Hook 안에도 "설명 -> 코드 -> 직접 해보기 -> 답안 -> 챌린지" 흐름이 반복되도록 묶었다.
+function createHookLessonCard({ name, summary, explanation, starter, tryIt, answerCode, challenge }) {
   const article = createCardShell(name);
   const summaryParagraph = document.createElement('p');
-  const pre = document.createElement('pre');
-  const code = document.createElement('code');
+  const starterBlock = createCodeBlock(starter);
 
   summaryParagraph.textContent = summary;
-  code.textContent = starter;
-  pre.appendChild(code);
 
   article.appendChild(summaryParagraph);
   article.appendChild(createDetailParagraph('설명', explanation));
-  article.appendChild(createDetailCodeBlock('예제 코드', pre));
+  article.appendChild(createDetailCodeBlock('예제 코드 / starter code', starterBlock));
   article.appendChild(createDetailList('직접 해보기', tryIt));
+  article.appendChild(createDetailCodeBlock('한 가지 가능한 답안', createCodeBlock(answerCode)));
   article.appendChild(createDetailParagraph('챌린지', challenge));
 
   return article;
@@ -226,6 +273,17 @@ function createDetailCodeBlock(title, content) {
   wrapper.append(heading, content);
 
   return wrapper;
+}
+
+// 코드 문자열을 <pre><code> DOM으로 감싸 주는 helper다.
+function createCodeBlock(codeText) {
+  const pre = document.createElement('pre');
+  const code = document.createElement('code');
+
+  code.textContent = codeText;
+  pre.appendChild(code);
+
+  return pre;
 }
 
 // "직접 해보기" 같은 실습 단계 목록을 그리는 helper다.

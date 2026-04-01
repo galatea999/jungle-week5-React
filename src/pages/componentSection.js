@@ -11,7 +11,7 @@
 // [이 파일이 하는 일]
 // 1. 학생이 처음 읽을 설명 문장을 준비한다.
 // 2. 카드형 UI에 들어갈 목록, 본문, 예제 코드를 정리한다.
-// 3. playground가 아직 없으므로 STUB 카드로 다음 작업 위치를 남긴다.
+// 3. 나중에 playground에 넣을 starter code와 답안 예시를 함께 준비한다.
 // ============================================================
 
 // 이 목록은 "이번 섹션에서 무엇을 배우는가?" 카드에 그대로 들어간다.
@@ -58,6 +58,49 @@ const COMPONENT_CHALLENGE = {
   hint: '컴포넌트 개수를 늘리기보다 App에서 같은 ProfileCard를 여러 번 호출하고 props를 바꿔 보세요.',
 };
 
+// B 역할이 playground를 붙일 때 바로 참고할 수 있도록
+// starter code와 한 가지 가능한 답안을 분리해 둔다.
+export const COMPONENT_PRACTICE = {
+  starterCode: `function ProfileCard(props) {
+  return h('article', { class: 'profile-card' },
+    h('h3', null, props.name),
+    h('p', null, props.job)
+  );
+}
+
+function App() {
+  return h('section', { class: 'card-list' },
+    h(ProfileCard, {
+      name: '김정글',
+      job: '프론트엔드 학습자',
+    })
+    // TODO: 같은 ProfileCard를 한 번 더 재사용해 보세요.
+  );
+}`,
+  answerCode: `function ProfileCard(props) {
+  return h('article', { class: 'profile-card' },
+    h('h3', null, props.name),
+    h('p', null, props.job),
+    h('p', null, '트랙: ' + props.track)
+  );
+}
+
+function App() {
+  return h('section', { class: 'card-list' },
+    h(ProfileCard, {
+      name: '김정글',
+      job: '프론트엔드 학습자',
+      track: 'Frontend',
+    }),
+    h(ProfileCard, {
+      name: '박리액트',
+      job: 'UI 실험가',
+      track: 'Interaction',
+    })
+  );
+}`,
+};
+
 // ------------------------------------------------------------
 // createComponentSection()
 // ------------------------------------------------------------
@@ -71,8 +114,9 @@ const COMPONENT_CHALLENGE = {
 //   2. 학습 목표
 //   3. 개념 설명
 //   4. 읽는 예제 코드
-//   5. 나중에 playground가 붙을 자리
-//   6. 학생이 스스로 풀어 볼 챌린지
+//   5. 직접 해보기 starter code
+//   6. 한 가지 가능한 답안
+//   7. 학생이 스스로 풀어 볼 챌린지
 // ------------------------------------------------------------
 export function createComponentSection() {
   const section = document.createElement('section');
@@ -92,10 +136,8 @@ export function createComponentSection() {
     '컴포넌트는 화면을 여러 조각으로 나눈 뒤, 필요한 곳에 다시 조립할 수 있게 해주는 작은 함수입니다. props는 부모 컴포넌트가 자식 컴포넌트에게 건네주는 정보 상자라고 생각하면 쉽습니다.',
   ));
   section.appendChild(createCodeCard('예제 코드 스텁', STARTER_CODE));
-  section.appendChild(createPlaceholderCard(
-    '직접 해보기 영역',
-    '여기에 codePlayground.js를 연결해서 이름과 직업을 바꾸면 오른쪽 프리뷰가 바로 바뀌도록 만들 예정입니다.',
-  ));
+  section.appendChild(createCodeCard('직접 해보기 starter code', COMPONENT_PRACTICE.starterCode));
+  section.appendChild(createCodeCard('한 가지 가능한 답안', COMPONENT_PRACTICE.answerCode));
   section.appendChild(createChallengeCard(COMPONENT_CHALLENGE));
 
   return section;
@@ -152,19 +194,6 @@ function createCodeCard(title, code) {
   codeEl.textContent = code;
   pre.appendChild(codeEl);
   card.appendChild(pre);
-  return card;
-}
-
-// 아직 연결되지 않은 기능 자리를 표시하는 helper다.
-// STUB 접두사를 붙여 두면 "기능 누락"이 아니라
-// "의도적으로 비워 둔 다음 단계"라는 점이 분명해진다.
-function createPlaceholderCard(title, text) {
-  const card = createCardShell(title);
-  const body = document.createElement('p');
-
-  body.textContent = `[STUB] ${text}`;
-
-  card.appendChild(body);
   return card;
 }
 
