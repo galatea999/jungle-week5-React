@@ -9,6 +9,8 @@
 // 학생이 "값을 기억하는 법" 다음에 "그 값을 어디에 둘지"까지 생각하게 만드는 단계다.
 // ============================================================
 
+import { createPracticePlaygroundCard } from './practicePlayground.js';
+
 // 학생이 개념을 절차로 이해하도록 돕는 단계 목록이다.
 // 단순 설명만 주면 추상적으로 끝날 수 있어서,
 // 실제로 state를 올릴 때 밟는 순서를 문장으로 적어 두었다.
@@ -54,7 +56,7 @@ const STATE_CHALLENGE = {
 };
 
 // state 올리기 전/후 코드를 한 쌍으로 준비해 두면
-// playground 연결 시 "무엇을 바꿔야 하는가"가 훨씬 분명해진다.
+// playground에서 "무엇을 바꿔야 하는가"가 훨씬 분명해진다.
 export const STATE_PRACTICE = {
   starterCode: `function TemperatureInput(props) {
   const [value, setValue] = useState('');
@@ -75,10 +77,11 @@ function ResultCard(props) {
 function App() {
   return h('section', null,
     h(TemperatureInput, { label: '섭씨' }),
-    h(ResultCard, { value: '' })
-    // TODO: 두 컴포넌트가 같은 값을 보도록 state 위치를 올려 보세요.
+    h(ResultCard, { value: '(아직 부모와 연결되지 않았습니다.)' })
   );
-}`,
+}
+
+return App;`,
   answerCode: `function TemperatureInput(props) {
   return h('label', null,
     props.label,
@@ -104,7 +107,9 @@ function App() {
     }),
     h(ResultCard, { value: temperature })
   );
-}`,
+}
+
+return App;`,
 };
 
 // 섹션 3 전체를 조립하는 공개 함수다.
@@ -126,7 +131,12 @@ export function createStateSection() {
   ));
   section.appendChild(createListCard('실행 순서', LIFTING_STEPS));
   section.appendChild(createCodeCard('온도 변환기 예제 스텁', TEMPERATURE_EXAMPLE));
-  section.appendChild(createCodeCard('직접 해보기 starter code', STATE_PRACTICE.starterCode));
+  section.appendChild(createPracticePlaygroundCard({
+    title: '직접 해보기',
+    fileName: 'LiftingStatePractice.js',
+    description: '입력창은 바뀌지만 아래 카드가 아직 같이 안 바뀝니다. state를 App으로 올려서 두 컴포넌트가 같은 값을 보게 만들어 보세요.',
+    initialCode: STATE_PRACTICE.starterCode,
+  }));
   section.appendChild(createCodeCard('한 가지 가능한 답안', STATE_PRACTICE.answerCode));
   section.appendChild(createChallengeCard(STATE_CHALLENGE));
 

@@ -45,6 +45,17 @@ const INTEGRATION_SCENARIOS = [
     ],
     nextStep: 'codePlayground가 연결되면 실행 버튼 클릭 이후 preview DOM 변화를 assertion한다.',
   },
+  {
+    name: 'VDOM 시각화 패널이 old/new tree와 patch 목록을 함께 보여줘야 한다',
+    reason: '학생이 diff 결과를 눈으로 따라갈 수 있어야 Virtual DOM 섹션의 학습 목표가 완성된다.',
+    setup: 'vdomSection의 예시 버튼을 눌러 diffVisualizer에 before/after VDOM을 전달한다.',
+    checkpoints: [
+      '이전 VDOM 카드와 새 VDOM 카드가 동시에 표시된다.',
+      'patch 목록에 TEXT, CREATE, PROPS, REMOVE 같은 변화가 사람이 읽을 수 있는 문장으로 나타난다.',
+      '예시를 바꾸면 트리와 patch 목록이 함께 다시 그려진다.',
+    ],
+    nextStep: 'createVdomSection 또는 createDiffVisualizer를 DOM 환경에서 실행하고, 시나리오 버튼 클릭 전후의 트리 카드와 patch list 텍스트를 assertion한다.',
+  },
 ];
 
 // 원본 시나리오 배열을 그대로 돌려주는 getter다.

@@ -11,8 +11,10 @@
 // [이 파일이 하는 일]
 // 1. 학생이 처음 읽을 설명 문장을 준비한다.
 // 2. 카드형 UI에 들어갈 목록, 본문, 예제 코드를 정리한다.
-// 3. 나중에 playground에 넣을 starter code와 답안 예시를 함께 준비한다.
+// 3. playground에서 바로 실행할 starter code와 답안 예시를 함께 준비한다.
 // ============================================================
+
+import { createPracticePlaygroundCard } from './practicePlayground.js';
 
 // 이 목록은 "이번 섹션에서 무엇을 배우는가?" 카드에 그대로 들어간다.
 // 학습 목표를 먼저 보여주면 학생이 아래 설명을 읽을 때 집중 포인트를 잡기 쉽다.
@@ -58,8 +60,9 @@ const COMPONENT_CHALLENGE = {
   hint: '컴포넌트 개수를 늘리기보다 App에서 같은 ProfileCard를 여러 번 호출하고 props를 바꿔 보세요.',
 };
 
-// B 역할이 playground를 붙일 때 바로 참고할 수 있도록
-// starter code와 한 가지 가능한 답안을 분리해 둔다.
+// starter code는 이제 실제 playground에서 바로 실행할 수 있는 형태다.
+// 맨 아래의 return App;은 codePlayground가 루트 컴포넌트를 받아
+// 바로 프리뷰를 그릴 수 있게 해 주는 마무리 줄이다.
 export const COMPONENT_PRACTICE = {
   starterCode: `function ProfileCard(props) {
   return h('article', { class: 'profile-card' },
@@ -73,10 +76,12 @@ function App() {
     h(ProfileCard, {
       name: '김정글',
       job: '프론트엔드 학습자',
-    })
-    // TODO: 같은 ProfileCard를 한 번 더 재사용해 보세요.
+    }),
+    h('p', null, 'TODO: 같은 ProfileCard를 한 번 더 재사용해 보세요.')
   );
-}`,
+}
+
+return App;`,
   answerCode: `function ProfileCard(props) {
   return h('article', { class: 'profile-card' },
     h('h3', null, props.name),
@@ -98,7 +103,9 @@ function App() {
       track: 'Interaction',
     })
   );
-}`,
+}
+
+return App;`,
 };
 
 // ------------------------------------------------------------
@@ -136,7 +143,12 @@ export function createComponentSection() {
     '컴포넌트는 화면을 여러 조각으로 나눈 뒤, 필요한 곳에 다시 조립할 수 있게 해주는 작은 함수입니다. props는 부모 컴포넌트가 자식 컴포넌트에게 건네주는 정보 상자라고 생각하면 쉽습니다.',
   ));
   section.appendChild(createCodeCard('예제 코드 스텁', STARTER_CODE));
-  section.appendChild(createCodeCard('직접 해보기 starter code', COMPONENT_PRACTICE.starterCode));
+  section.appendChild(createPracticePlaygroundCard({
+    title: '직접 해보기',
+    fileName: 'ComponentPractice.js',
+    description: '같은 ProfileCard를 한 번 더 호출해 보고, props만 바꿨을 때 카드가 어떻게 달라지는지 확인해 보세요.',
+    initialCode: COMPONENT_PRACTICE.starterCode,
+  }));
   section.appendChild(createCodeCard('한 가지 가능한 답안', COMPONENT_PRACTICE.answerCode));
   section.appendChild(createChallengeCard(COMPONENT_CHALLENGE));
 
