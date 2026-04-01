@@ -211,7 +211,7 @@
         {
           phase: 'Phase 3: 콘텐츠 완성',
           status: 'in_progress',
-          summary: '모든 섹션은 페이지에 통합되었지만, diff 시각화의 실제 화면 연결과 통합 테스트 assertion 전환은 아직 진행 중입니다.',
+          summary: '모든 섹션은 페이지에 통합되었고 diff 시각화도 vdom 섹션에 붙었습니다. 이제 남은 핵심은 통합 테스트를 assertion 단계로 끌어올리는 일입니다.',
           tasks: [
             {
               name: 'B+C: 모든 섹션을 페이지에 통합',
@@ -225,8 +225,8 @@
             },
             {
               name: 'B: diff 시각화 패널 + CSS 마무리',
-              status: 'in_progress',
-              note: 'src/ui/diffVisualizer.js와 관련 CSS는 존재하지만, 현재 vdom 섹션에는 placeholder만 붙어 있어 실제 화면 연결이 남아 있습니다.',
+              status: 'completed',
+              note: 'src/ui/diffVisualizer.js와 관련 CSS가 실제로 src/pages/vdomSection.js에 연결되어, old/new tree와 patch 목록을 바로 비교할 수 있습니다.',
             },
           ],
         },
