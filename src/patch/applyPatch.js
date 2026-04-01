@@ -1,4 +1,5 @@
 import { renderVdom } from '../core/renderVdom.js';
+import { removeDomProp, setDomProp } from '../core/domProps.js';
 import { PATCH_TYPES } from '../diff/patchTypes.js';
 import { getChildNodesForPath, getNodeByPath } from './domOps.js';
 
@@ -22,12 +23,12 @@ function applyPropsPatch(target, propsPatch) {
 
   // remove 목록은 명시적으로 속성을 제거한다.
   for (const key of propsPatch.remove) {
-    target.removeAttribute(key);
+    removeDomProp(target, key);
   }
 
   // set 목록은 최종 값으로 덮어쓴다.
   for (const [key, value] of Object.entries(propsPatch.set)) {
-    target.setAttribute(key, value);
+    setDomProp(target, key, value);
   }
 }
 

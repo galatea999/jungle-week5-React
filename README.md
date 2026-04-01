@@ -1,255 +1,294 @@
-# Nexus Home
-실시간으로 집안의 모든 기기 상태를 모니터링하고 제어하는 Virtual DOM 기반 대시보드입니다.
+# Week 5 React Learning Page
 
-## 프로젝트 소개
+## 1. 프로젝트 소개
 
-`Nexus Home (넥서스 홈)`은 실제 스마트홈 시나리오를 통해 Virtual DOM의 핵심 동작을 시각적으로 보여주는 데모 프로젝트입니다.
+이 프로젝트는 React의 핵심 개념을 "읽는 설명"이 아니라 "직접 수정하고 바로 확인하는 학습 경험"으로 바꾸기 위해 만든 **React 학습 페이지**입니다.  
+가장 큰 특징은 학습 페이지 자체가 우리가 직접 구현한 **mini React 프레임워크** 위에서 동작한다는 점입니다.
 
-이 주제는 상태 변화가 자주 일어나는 서비스라 Virtual DOM 장점인 부분 갱신을 가장 잘 보여줄 수 있어서 선택했습니다.
+즉, 이 프로젝트는 두 가지를 동시에 보여 줍니다.
 
+- React 개념을 배우는 학습 페이지
+- 그 학습 페이지를 실제로 실행하는 mini React 엔진
 
-<br>
+이 README는 다음 문서를 기준으로 정리했습니다.
 
+- [프로젝트 계획 문서](./docs/project-plan.md)
+- [AI Convention](./docs/AI%20Convention.md)
+- [요구사항 체크리스트](./docs/requirements-checklist.md)
 
-# Virtual DOM이란?
+![flow.png](./img/flow.png)
 
-Virtual DOM은 실제 화면 DOM을 그대로 조작하지 않고, 같은 구조를 자바스크립트 객체 트리로 한 번 더 표현한 것입니다.  
-핵심은 전체를 다시 그리는 게 아니라, 이전 트리와 다음 트리의 차이만 계산해서 필요한 변경만 반영하는 데 있습니다.
+### 핵심 목표
 
-<br>
+- `Component`, `Props`, `State`, `Hooks`, `Virtual DOM`, `Diff`, `Patch` 흐름을 단계적으로 설명한다.
+- 학습자가 코드를 직접 수정하고 결과를 라이브 프리뷰로 바로 확인할 수 있게 한다.
+- `Lifting State Up`과 `Virtual DOM -> Diff -> Patch` 흐름을 눈으로 이해할 수 있게 만든다.
+- 마지막에는 여러 컴포넌트를 조립하는 `Workshop` 섹션으로 학습을 마무리한다.
 
-# Virtual DOM을 왜 쓰는가?
-![](./img/DOMFLOW.png)
+### 실제 학습 페이지 구성
 
-실제 DOM을 직접 자주 건드리면 변경 추적이 어렵고, 화면이 커질수록 관리 비용이 커집니다.  
- 
-Virtual DOM을 쓰면 변경을 트리 비교로 다룰 수 있어서 다음과 같은 장점이 있습니다.
+1. Component & Props
+2. Hooks (`useState`, `useEffect`, `useMemo`)
+3. State 위치 올리기 (`Lifting State Up`)
+4. Virtual DOM이 하는 일
+5. Component 조립 Workshop
 
-- 변경 범위를 명확히 알 수 있다.
-- 필요한 부분만 반영할 수 있다.
-- 상태 스냅샷 기반으로 Undo/Redo 같은 기능도 쉽게 붙일 수 있다.
+### 기술 스택
 
-<br>
+- HTML / CSS / Vanilla JavaScript
+- Custom mini React
+- 기존 Week 3 자산 재사용
+  - `src/core`
+  - `src/diff`
+  - `src/patch`
 
-# Virtual DOM Flow
-![Flow](./img/flow.png)
- 
-사용자 수정 -> `testRoot`를 VDOM으로 변환 -> `diff` 계산 -> `Patch` 버튼으로 `actualRoot` 반영 -> `history` 저장
+### 실행 포인트
 
-## Flow 상세 (코드 베이스 기준)
+- 학습 페이지 진입: `index.html`
+- 테스트 페이지 진입: `tests/framework.test.html`
 
-1. `bootstrap()`에서 초기 DOM을 만들고 `domToVdom()`으로 `initialTree`를 생성합니다.
-2. `mountVdom()`으로 같은 트리를 `testRoot`에 렌더링해 편집 영역을 준비합니다.
-3. 사용자가 test 영역을 수정하면 `getDraftDiff()`가 test DOM을 다시 VDOM으로 변환합니다.
-4. `diff(store.getTree(), nextTree)`로 patch 목록을 계산합니다.
-5. `renderDraftDiff()`가 patch JSON/트리 프리뷰를 실시간 갱신합니다.
-6. `Patch` 클릭 시 `applyPatches()`가 `actualRoot`에 최소 변경만 반영합니다.
-7. 반영 후 `store.setTree(nextTree)`, `history.push(nextTree)`로 기준 상태를 업데이트합니다.
-8. `Undo/Redo`는 diff 재계산이 아니라 history 스냅샷 복원으로 동작합니다.
+---
 
-<br>
+## 2. Component란, State란, Hook이란
 
-# CORE
-VNODE의 구조를 선언하는 역할을 합니다.
+### Component란
 
-CORE는 DOM과 VDOM 사이 변환/렌더링을 담당합니다.
+Component는 UI를 작은 함수 단위로 나누는 방식입니다.  
+이 프로젝트에서는 `ProfileCard`, `TemperatureInput`, `ResultCard` 같은 작은 단위를 만들어서 화면을 조립합니다.
 
-- `domToVdom()`이 실제 DOM을 VDOM 트리로 만든다.
-- `mountVdom()`이 VDOM을 다시 실제 DOM으로 렌더링한다.
+핵심은 다음 두 가지입니다.
 
-즉, 비교 가능한 데이터 구조를 만드는 기반 계층입니다.
+- **재사용성**: 같은 컴포넌트를 여러 번 호출해도 props만 바꾸면 다른 화면을 만들 수 있다.
+- **역할 분리**: 부모는 화면을 조립하고, 자식은 자신이 맡은 조각만 렌더링한다.
 
-## CORE 상세
+이 프로젝트에서는 `Component + Props` 섹션에서 이 개념을 가장 먼저 설명하고, 같은 컴포넌트를 여러 번 재사용하는 챌린지까지 연결합니다.
 
-- `createElementVNode(tag, props, children)`:
-  element 노드를 표준 VNode 구조로 변환하며 `key`(`props.key` 또는 `data-key`)를 함께 보관합니다.
-- `createTextVNode(text)`:
-  텍스트를 독립 노드로 다뤄 `TEXT` patch를 정확하게 계산할 수 있게 합니다.
-- `domToVdom(node)`:
-  실제 DOM을 재귀 순회해 VDOM 트리로 변환합니다.
-  이때 comment와 공백 text를 제외해 path 인덱스 안정성을 확보합니다.
-- `renderVdom(vnode)`:
-  VDOM을 실제 DOM으로 복원합니다. (태그 생성 -> props 반영 -> children 재귀 렌더)
-- `mountVdom(container, vnode)`:
-  컨테이너의 현재 내용을 최신 VDOM 결과로 교체합니다.
+### State란
 
-핵심 목적은 "DIFF가 신뢰할 수 있는 비교 기준 트리"를 만드는 것입니다.
+State는 컴포넌트가 "기억해야 하는 값"입니다.  
+예를 들어 카운터 숫자, 입력창 값, 현재 선택된 항목 같은 값은 한 번 렌더링하고 끝나는 정보가 아니라 계속 바뀌는 정보이기 때문에 state로 관리합니다.
 
-<br>
+이 프로젝트에서 state는 다음 흐름으로 이해할 수 있습니다.
 
-# DIFF
+- `useState(initialValue)`로 값을 저장한다.
+- setter가 호출되면 컴포넌트가 다시 렌더링된다.
+- 새 Virtual DOM과 이전 Virtual DOM을 비교한 뒤, 바뀐 부분만 DOM에 반영한다.
 
-DIFF는 이전 트리와 다음 트리를 비교해 patch 목록을 만듭니다.  
-이 프로젝트 기준 patch 타입은 `CREATE`, `REMOVE`, `REPLACE`, `TEXT`, `PROPS`, `MOVE`입니다.  
-요약하면 DIFF는 무엇이 달라졌는지 분석하는 단계입니다.
+또한 여러 컴포넌트가 같은 값을 함께 써야 할 때는 state를 부모로 올려서 공유하는데, 이것이 바로 `Lifting State Up`입니다.
 
-## 현재 diff 규칙
+### Hook이란
 
-`diff.js`는 아래 순서로 비교합니다.
+Hook은 함수형 컴포넌트에 "기억", "부수 효과", "계산 결과 재사용" 같은 기능을 붙여 주는 규칙입니다.
 
-1. `oldNode`가 없고 `newNode`가 있으면 `CREATE`
-2. `oldNode`가 있고 `newNode`가 없으면 `REMOVE`
-3. 노드 타입이 다르거나 element tag가 다르면 `REPLACE`
-4. 두 노드가 모두 text node이고 내용이 다르면 `TEXT`
-5. 두 노드가 같은 element 타입이면 props를 비교하고 필요 시 `PROPS`
-6. 자식 노드를 pair로 묶은 뒤, 같은 key를 가진 노드의 위치가 바뀌면 `MOVE`
-7. 각 자식 pair를 재귀적으로 다시 비교
+이 프로젝트에서는 세 가지 Hook을 직접 구현하고 설명합니다.
 
-## React에서 실제 DOM 변경 시 Virtual DOM + Diff 동작 방식
+- `useState`
+  - 컴포넌트가 값을 기억하게 한다.
+- `useEffect`
+  - 렌더링 이후 실행해야 하는 작업을 등록한다.
+- `useMemo`
+  - 값이 바뀌지 않았다면 이전 계산 결과를 재사용한다.
 
-React도 큰 흐름은 이 프로젝트와 같습니다.  
-상태(state)가 바뀌면 새 UI를 바로 DOM에 쓰지 않고, 먼저 새 Virtual DOM(정확히는 React Element/Fiber 트리)을 만들고 이전 트리와 비교한 뒤 필요한 변경만 커밋합니다.
+즉, Hook은 단순히 문법이 아니라 **함수형 컴포넌트가 상태를 갖고 동작하게 만드는 핵심 장치**입니다.
 
-1. 상태 변경 발생 (`setState`, `useState` setter 등)
-2. 새 Virtual DOM 트리 생성 (렌더 단계)
-3. 이전 트리와 비교(Reconciliation, Diff)
-4. 변경 목록을 확정한 뒤 실제 DOM에 반영 (Commit 단계)
+---
 
-핵심 규칙은 다음과 같습니다.
+## 3. flow 상세
 
-- 같은 타입의 노드는 재사용하고, props만 바뀌면 속성만 갱신합니다.
-- 타입이 다르면 해당 서브트리를 교체합니다.
-- 리스트는 `key`를 기준으로 항목을 추적해 이동/삽입/삭제를 최소화합니다.
-- 실제 DOM 반영은 커밋 단계에서 한 번에 적용되어 불필요한 화면 갱신을 줄입니다.
+### 3-1. 학습 페이지 flow
 
-즉 React의 본질도 동일합니다.  
-"먼저 Virtual DOM에서 차이를 계산하고, 마지막에 필요한 변경만 실제 DOM에 커밋한다"가 핵심입니다.
+학습자는 다음 순서로 프로젝트를 경험합니다.
 
-## DIFF 상세
+1. 왼쪽 네비게이션에서 챕터를 선택한다.
+2. 가운데 영역에서 개념 설명과 코드 예제를 읽는다.
+3. 오른쪽 실습 영역에서 starter code를 실행한다.
+4. 코드를 수정한 뒤 `실행` 버튼을 눌러 결과를 바로 확인한다.
+5. 챌린지를 통해 개념을 다시 적용해 본다.
+6. 마지막 Workshop에서 여러 컴포넌트를 조립하며 학습을 마무리한다.
 
-- 노드 타입 비교:
-  타입/태그가 다르면 즉시 `REPLACE`를 생성해 하위 비교를 중단합니다.
-- 텍스트 비교:
-  text 노드는 값이 달라질 때만 `TEXT` patch를 생성합니다.
-- 속성 비교:
-  `diffProps()`가 `set`(추가/변경), `remove`(삭제)로 분리해 최소 변경만 산출합니다.
-- 자식 비교:
-  `collectChildPairs()`가 key 존재 여부에 따라 `keyed diff` 또는 `index diff`를 선택합니다.
-- keyed reorder 대응:
-  `keyedDiff`가 동일 key를 매칭해 이동(`MOVE`)을 감지하고 불필요한 교체를 줄입니다.
-- patch 순서 계약:
-  같은 부모 기준으로 `REMOVE -> CREATE -> MOVE -> REPLACE -> TEXT -> PROPS` 우선순위를 맞춰 PATCH 단계와 호환합니다.
+즉, 이 프로젝트의 학습 흐름은 아래처럼 설계되어 있습니다.
 
-핵심 목적은 "무엇을 바꿔야 하는지"를 최소 단위 patch 목록으로 만드는 것입니다.
+```text
+설명 읽기 -> 예제 보기 -> 직접 수정하기 -> 결과 확인하기 -> 챌린지 해결하기
+```
 
-<br>
+### 3-2. mini React 렌더링 flow
 
-# PATCH
+이 프로젝트의 핵심 기술 흐름은 다음과 같습니다.
 
-PATCH는 DIFF 결과를 실제 DOM에 적용하는 실행 단계입니다.
+```text
+h()
+-> component / element VNode 생성
+-> renderApp()
+-> FunctionComponent.mount()
+-> render()
+-> Hook 배열과 hookIndex로 현재 상태 읽기
+-> Virtual DOM 생성
+-> renderVdom()로 초기 DOM 마운트
+```
 
-- `applyPatches()`가 patch 순서를 정렬해 안전하게 반영한다.
-- 적용 후에는 `store/history`를 갱신해 다음 비교 기준과 Undo/Redo 기준을 맞춘다.
+상태가 바뀌면 아래 흐름으로 업데이트됩니다.
 
-즉 PATCH는 분석 결과를 화면에 반영하는 단계입니다.
+```text
+setState()
+-> FunctionComponent.update()
+-> 새 Virtual DOM 생성
+-> diff(oldVdom, newVdom)
+-> applyPatches()
+-> runEffects()
+-> 실제 DOM 갱신
+```
 
-## PATCH 상세
+### 3-3. Playground flow
 
-- patch 타입 호환:
-  DIFF의 `PROPS`를 PATCH 단계에서 `UPDATE_PROPS`와 동등하게 처리해 팀 간 계약을 맞춥니다.
-- path 기반 대상 탐색:
-  `getNodeByPath()`/`getChildNodesForPath()`로 patch마다 DOM 대상을 다시 조회합니다.
-  이전 patch로 구조가 바뀌어도 다음 patch가 안전하게 적용됩니다.
-- 적용 순서 안정화:
-  깊은 경로 우선, 같은 부모에서는 구조 변경 patch를 먼저 적용합니다.
-- `MOVE` 처리:
-  key가 있으면 key 우선으로 이동 대상을 찾아 `insertBefore` 기반으로 재배치합니다.
-- 루트 patch 처리:
-  `path=[]`인 경우 루트 교체/텍스트/속성 변경을 별도 분기 처리합니다.
+오른쪽 실습 영역은 단순 코드 뷰어가 아니라 실제 실행 영역입니다.
 
-핵심 목적은 "DIFF 결과를 DOM에 정확하고 안정적으로 커밋"하는 것입니다.
+1. 학습자가 코드를 수정한다.
+2. `createPlayground()`가 코드를 실행한다.
+3. 실행 시 `h`, `useState`, `useEffect`, `useMemo`, `renderApp`를 주입한다.
+4. 결과를 preview 영역에 렌더링한다.
+5. 필요하면 `VDOM viewer`와 diff 시각화까지 함께 보여 준다.
 
-<br>
+이 구조 덕분에 학습자는 "개념 설명"과 "실제 동작"을 한 화면 안에서 연결해서 볼 수 있습니다.
 
-# 협업 방식
+### 3-4. 발표 시연 flow
 
-## 역할분할 (4인 기준)
+발표에서는 아래 순서로 보여 주면 흐름이 자연스럽습니다.
 
-### A. CORE 담당
+1. `Component & Props`
+   - 같은 카드 컴포넌트를 props만 바꿔 재사용하는 장면 시연
+2. `Hooks`
+   - `useState`로 값이 기억되는 모습
+   - `useEffect`로 렌더 이후 작업이 실행되는 모습
+   - `useMemo`로 재계산 조건이 달라지는 모습
+3. `State 위치 올리기`
+   - 부모가 state를 들고 자식이 props로 값을 공유하는 모습
+4. `Virtual DOM`
+   - old tree / new tree / patch list 설명
+5. `Workshop`
+   - 여러 컴포넌트를 조립하고 버튼 상호작용까지 확인
+6. `테스트 페이지`
+   - smoke test를 다시 실행하면서 검증 흐름 마무리
 
-- 담당 파일: `src/core/vnode.js`, `src/core/domToVdom.js`, `src/core/renderVdom.js`
-- 책임: VNode 스펙, DOM<->VDOM 변환 정확성, path 인덱스 일관성
+---
 
-### B. DIFF 담당
+## 4. 협업방식
 
-- 담당 파일: `src/diff/diff.js`, `src/diff/diffProps.js`, `src/diff/diffChildren.js`, `src/diff/keyedDiff.js`
-- 책임: patch 생성 규칙, keyed reorder 품질, patch 순서 계약 유지
+이 프로젝트는 기획 문서에서 정의한 역할 분담을 기준으로 협업했습니다.
 
-### C. PATCH/STATE 담당
+### 역할 분담
 
-- 담당 파일: `src/patch/applyPatch.js`, `src/patch/domOps.js`, `src/state/store.js`, `src/state/history.js`
-- 책임: patch 적용 안정성, MOVE/PROPS 반영 정확성, Undo/Redo 복원 일관성
+| 역할                    | 담당 범위                                         | 대표 파일                                      |
+| ----------------------- | ------------------------------------------------- | ---------------------------------------------- |
+| A. 프레임워크 엔진      | mini React 동작 구현                              | `src/framework/*`                              |
+| B. 학습 페이지 UI       | 레이아웃, playground, diff 시각화, 스타일, README | `src/ui/*`, `src/styles/main.css`, `README.md` |
+| C. 학습 콘텐츠 + 테스트 | 각 섹션 설명, 예제, 챌린지, 테스트 페이지         | `src/pages/*`, `tests/*`                       |
 
-### D. UI/통합 담당
+### 협업 원칙
 
-- 담당 파일: `src/ui/*`, `src/app.js`, `src/styles/*`, `docs/*`
-- 책임: 편집 이벤트 연결, draft diff 시각화, patch 실행 UX, 데모 시나리오
+- 작업 전에 반드시 `docs/project-plan.md`와 `docs/AI Convention.md`를 먼저 확인한다.
+- 각 역할은 자신의 책임 범위를 우선 처리한다.
+- 다른 역할의 파일을 건드려야 할 때는 최소 범위만 수정한다.
+- 엔진, UI, 콘텐츠를 분리해 병렬 작업이 가능하도록 구조를 유지한다.
 
-## 협업 체크리스트
+### 실제 협업 흐름
 
-1. 공통 계약 먼저 확정: VNode shape, patch 타입, path 규칙
-2. DIFF/PATCH 통합 테스트 공유: CREATE/REMOVE/REPLACE/TEXT/PROPS/MOVE
-3. 병합 순서 고정: CORE -> DIFF -> PATCH/STATE -> UI
+#### Phase 1. 기반 구현
 
-<br>
+- A: `FunctionComponent`, `useState` 등 엔진 기본 동작 구현
+- B: 학습 페이지 레이아웃과 playground 껍데기 구현
+- C: Component 섹션 콘텐츠와 테스트 골격 작성
 
-# Mutation Observer (실제 DOM 변화 시각화)
+#### Phase 2. 연결
 
-이 프로젝트는 `actualRoot`에 `MutationObserver`를 연결해 실제 DOM mutation을 시각화합니다.  
-Tree Visualizer 아래 패널에서 mutation 로그와 처리 메트릭을 확인할 수 있습니다.
+- A + B: 프레임워크를 playground에서 실제 실행 가능하게 연결
+- A: `useEffect`, `useMemo` 완성
+- C: Hooks 섹션과 테스트 확장
 
-## 동작 방식
+#### Phase 3. 통합
 
-1. `MutationObserver`가 `attributes`, `childList`, `characterData` 변화를 수집합니다.
-2. 수집된 레코드는 `requestAnimationFrame` 단위로 먼저 배치(flush)됩니다.
-3. 화면 로그 렌더링은 `debounce`로 묶어 과도한 repaint를 줄입니다.
-4. 최종적으로 사람이 읽기 쉬운 로그 문장으로 변환해 패널에 표시합니다.
+- B + C: 모든 섹션을 하나의 학습 페이지로 통합
+- C: Workshop 섹션과 통합 테스트 정리
+- B: diff 시각화와 스타일 마무리
 
-## 왜 rAF + debounce를 같이 쓰는가?
+#### Phase 4. 발표 준비
 
-- `rAF`: 브라우저 프레임 타이밍에 맞춰 mutation 레코드를 모아 처리
-- `debounce`: 로그 DOM 업데이트 빈도를 낮춰 UI 부하 감소
+- README 정리
+- 테스트 흐름 정리
+- 발표 시연 순서와 설명 포인트 정리
 
-즉, mutation 수집과 화면 렌더링을 분리해 성능과 가독성을 동시에 확보합니다.
+### 협업에서 중요했던 연결 방식
 
-## 노이즈 필터링(주의점 반영)
+- A는 B와 C가 쓸 수 있는 API(`h`, `renderApp`, `useState` 등)를 명확히 제공한다.
+- B는 엔진 내부 상태를 직접 만지지 않고 공개된 API만 사용한다.
+- C는 학습 콘텐츠와 테스트를 실제 구현 상태에 맞춰 설계한다.
 
-Patch/Undo/Redo/초기화처럼 앱 내부 코드가 의도적으로 만든 DOM 변경은 observer가 과도하게 기록할 수 있습니다.  
-이를 줄이기 위해 내부 커밋 구간에서 observer를 잠시 mute하여 "자기 자신이 만든 mutation"을 필터링합니다.
+이렇게 역할을 나눈 덕분에 "엔진", "화면", "콘텐츠"가 서로 발목을 잡지 않고 병렬로 발전할 수 있었습니다.
 
-패널 메트릭 의미:
+---
 
-- `rAF flush`: 프레임 배치 처리 횟수
-- `debounce flush`: 로그 렌더링 반영 횟수
-- `frame records`: 최근 프레임에서 처리한 mutation 개수
-- `queued`: debounce 대기 중인 로그 개수
-- `ignored(self)`: 내부 커밋으로 인해 필터링된 mutation 개수
+## 5. 어려웠던 점 / 아쉬웠던 점
 
-## 관련 코드
+### 어려웠던 점
 
-- `src/ui/mutationObserverPanel.js`: observer 생성, 배치/디바운스, 로그 렌더링
-- `src/app.js`: observer 연결, patch/history 동기화 구간 mute 처리
-- `src/ui/controls.js`: reconcile 구간 mute 처리
-- `src/ui/layout.js`: Tree Visualizer 아래 패널 마크업
+#### 1. Hook의 동작을 단순한 구조로 구현하는 것
 
-<br>
+React의 Hook은 겉보기에는 간단하지만, 실제로는 "렌더링 순서"와 "저장 위치"가 매우 중요합니다.  
+이 프로젝트에서도 `hooks` 배열과 `hookIndex`를 통해 각 Hook이 자신의 자리를 기억하도록 만드는 과정이 가장 핵심이었습니다.
 
-# 어려웠던 점 / 아쉬웠던 점
-### 지현
-1. CREATE, REPLACE와 같은 기능을 UI단에서 보여주지 못한 점
-2. Diff와 Patch 구현간에 소통
+#### 2. State 변경을 DOM 갱신까지 자연스럽게 연결하는 것
 
-### 민철
-1. REMOVE/CREATE/MOVE가 섞일 때 인덱스가 밀려 엉뚱한 노드가 수정되는 문제
-2. undo 후 새 수정이 들어올 때 redo 가지를 어떻게 정리할지 타임라인 규칙을 맞추는 것
+`setState()`가 단순히 값만 바꾸는 것이 아니라,
 
+```text
+setState -> rerender -> diff -> patch -> DOM update
+```
 
-### 규민
-1. 실제 Virtual DOM을 시각적으로 보여주기 위한 데모 사이트를 어떻게 구축하는가 정하는게 가장 어려웠던 것 같습니다.
+까지 이어져야 했기 때문에, 엔진과 UI를 함께 이해해야 했습니다.
 
-2. 아쉬웠던 점  
-reorder와 move의 확장  
-현재 문서상으로도 MOVE는 같은 부모 안의 direct child 이동 중심이고, 더 복잡한 reorder나 부모가 바뀌는 것은 구현이 안되어 있는 상태라 스마트홈 카드 순서 변경 데모가 있는 만큼, 더욱 더 추가할 수 있는 요소가 많은 것 같습니다.
+#### 3. 학습용 UI와 실제 엔진 흐름을 동시에 맞추는 것
 
-### 진호
-1. Mutation Observer (actualRoot)에 대한 내용을 늦게 발견하여 숙지하지 못한 것
+이 프로젝트는 단순한 데모 페이지가 아니라 학습 페이지이기 때문에,
+
+- 설명이 쉬워야 하고
+- 코드가 직접 실행돼야 하고
+- 결과가 눈에 보여야 하며
+- 테스트까지 따라와야 했습니다.
+
+즉, "보여 주는 화면"과 "실제로 동작하는 코드"를 동시에 설계해야 했던 점이 어려웠습니다.
+
+### 아쉬웠던 점
+
+#### 1. 실제 React의 모든 기능을 구현한 것은 아니다
+
+이 프로젝트는 학습 목적의 mini React이기 때문에 다음과 같은 실제 React의 복잡한 기능까지는 다루지 않았습니다.
+
+- Fiber 구조
+- Concurrent Rendering
+- Batching 최적화
+- 정교한 스케줄링
+
+즉, React의 핵심 개념 흐름을 설명하는 데 집중했고, 실제 React 전체를 복제하는 것이 목표는 아니었습니다.
+
+#### 2. 테스트가 브라우저 기반 smoke test 중심이다
+
+현재 테스트 페이지는 발표와 학습에는 매우 적합하지만,
+
+- 브라우저 기반 실행 흐름이 중심이고
+- smoke test와 설명용 시나리오 보드가 함께 존재하며
+- CI 수준의 자동화까지는 아직 연결되지 않았습니다.
+
+추후에는 더 정교한 자동화 테스트 환경으로 확장할 수 있습니다.
+
+#### 3. 학습 규칙과 엔진 규칙의 경계가 더 명확해질 수 있다
+
+프로젝트는 학습 흐름상 "루트에서 state를 관리하고 자식은 props를 받는다"는 방향을 강조합니다.  
+다만 이런 규칙은 현재 **학습 설계와 문서 기준으로는 충분히 설명되지만**, 엔진 차원에서 모두 강하게 제한하는 수준까지는 아닙니다.
+
+이 부분은 앞으로 문서와 테스트를 더 정교하게 맞추면 발표 때도 더 명확하게 전달할 수 있습니다.
+
+---
+
+이 프로젝트의 핵심 문장은 아래 한 줄로 정리할 수 있습니다.
+
+> "React를 설명하는 페이지를 만드는 것이 아니라, 우리가 만든 mini React 위에서 직접 React를 배우는 페이지를 만든 프로젝트입니다."

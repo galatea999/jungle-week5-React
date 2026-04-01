@@ -1,8 +1,10 @@
-// VDOM의 props를 실제 DOM attribute로 옮긴다.
-// 현재 단계에서는 이벤트나 특수 속성 처리 없이 단순 attribute 반영만 담당한다.
+import { setDomProp } from './domProps.js';
+
+// VDOM의 props를 실제 DOM 속성이나 listener로 옮긴다.
+// 이벤트, input value 같은 특수 케이스도 여기서 함께 처리한다.
 function setProps(el, props = {}) {
   for (const [name, value] of Object.entries(props)) {
-    el.setAttribute(name, value);
+    setDomProp(el, name, value);
   }
 }
 

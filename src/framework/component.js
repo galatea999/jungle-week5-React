@@ -1,5 +1,5 @@
 // ============================================================
-// component.js — FunctionComponent 클래스
+// component.js - FunctionComponent class
 // ============================================================
 //
 // React에서 "함수형 컴포넌트"를 쓸 수 있는 이유는
@@ -48,25 +48,25 @@ export function setCurrentComponent(component) {
 // FunctionComponent 클래스
 // ------------------------------------------------------------
 // [생성자 매개변수]
-//   fn    — 함수형 컴포넌트 함수. 예: function Counter(props) { ... }
-//   props — 부모가 넘겨준 속성 객체. 예: { name: '홍길동', age: 15 }
+//   fn    - 함수형 컴포넌트 함수. 예: function Counter(props) { ... }
+//   props - 부모가 넘겨준 속성 객체. 예: { name: '홍길동', age: 15 }
 //
 // [내부 상태]
-//   hooks     — 상태를 저장하는 배열. useState 호출마다 한 칸씩 사용
-//   hookIndex — 현재 몇 번째 hook을 읽고 있는지 추적하는 숫자
-//   vdom      — 마지막으로 만든 Virtual DOM (비교용으로 보관)
-//   container — 이 컴포넌트가 그려진 실제 DOM 요소
-//   domNode   — 이 컴포넌트가 만든 실제 DOM 노드
+//   hooks     - 상태를 저장하는 배열. useState 호출마다 한 칸씩 사용
+//   hookIndex - 현재 몇 번째 hook을 읽고 있는지 추적하는 숫자
+//   vdom      - 마지막으로 만든 Virtual DOM (비교용으로 보관)
+//   container - 이 컴포넌트가 그려진 실제 DOM 요소
+//   domNode   - 이 컴포넌트가 만든 실제 DOM 노드
 // ------------------------------------------------------------
 export class FunctionComponent {
   constructor(fn, props = {}) {
-    this.fn = fn;             // 컴포넌트 함수 (레시피)
-    this.props = props;       // 부모가 준 데이터
-    this.hooks = [];          // 상태 저장 배열 (메모장)
-    this.hookIndex = 0;       // 지금 읽고 있는 hook 번호
-    this.vdom = null;         // 이전 렌더링 결과 (비교용)
-    this.container = null;    // 마운트 대상 DOM 요소
-    this.domNode = null;      // 현재 화면에 있는 실제 DOM
+    this.fn = fn;
+    this.props = props;
+    this.hooks = [];
+    this.hookIndex = 0;
+    this.vdom = null;
+    this.container = null;
+    this.domNode = null;
   }
 
   // ----------------------------------------------------------
@@ -75,8 +75,8 @@ export class FunctionComponent {
   // 컴포넌트 함수를 실행해서 새로운 VDOM을 만든다.
   //
   // 왜 매번 새로 실행할까?
-  //   → 함수 안에서 hooks를 통해 최신 상태를 읽기 때문이다.
-  //   → 같은 함수를 실행해도, 상태가 다르면 다른 결과가 나온다.
+  //   -> 함수 안에서 hooks를 통해 최신 상태를 읽기 때문이다.
+  //   -> 같은 함수를 실행해도, 상태가 다르면 다른 결과가 나온다.
   //
   // 중요한 순서:
   //   1. hookIndex를 0으로 리셋 (처음부터 다시 읽도록)
@@ -86,13 +86,15 @@ export class FunctionComponent {
   //   5. 만들어진 VDOM을 반환
   // ----------------------------------------------------------
   render() {
-    // TODO: 구현하기
+    this.hookIndex = 0;
+    setCurrentComponent(this);
 
-    // this.hookIndex = 0;
-    // setCurrentComponent(this);
-    // const newVdom = this.fn(this.props);
-    // setCurrentComponent(null);
-    // return newVdom;
+    try {
+      const newVdom = this.fn(this.props);
+      return expandTree(newVdom);
+    } finally {
+      setCurrentComponent(null);
+    }
   }
 
   // ----------------------------------------------------------
@@ -101,7 +103,7 @@ export class FunctionComponent {
   // 컴포넌트를 처음으로 화면에 그린다.
   //
   // [매개변수]
-  //   container — 컴포넌트를 넣을 부모 DOM 요소
+  //   container - 컴포넌트를 넣을 부모 DOM 요소
   //               예: document.getElementById('app')
   //
   // [실행 순서]
@@ -113,7 +115,16 @@ export class FunctionComponent {
   //   6. useEffect 콜백들을 실행한다 (mount 이후 사이드 이펙트)
   // ----------------------------------------------------------
   mount(container) {
-    // TODO: 구현하기
+    this.container = container;
+
+    const newVdom = this.render();
+    this.vdom = newVdom;
+    this.domNode = renderVdom(newVdom);
+
+    container.replaceChildren(this.domNode);
+    this.runEffects();
+
+    return this.domNode;
   }
 
   // ----------------------------------------------------------
@@ -137,7 +148,28 @@ export class FunctionComponent {
   //   다른 부분만 새 그림으로 덮어씌운다.
   // ----------------------------------------------------------
   update() {
-    // TODO: 구현하기
+    if (!this.container) {
+      return null;
+    }
+
+    if (this.vdom === null || this.domNode === null) {
+      return this.mount(this.container);
+    }
+
+    const oldVdom = this.vdom;
+    const newVdom = this.render();
+    const patches = diff(oldVdom, newVdom);
+    const nextDomNode = applyPatches(this.domNode, patches);
+
+    this.vdom = newVdom;
+    this.domNode = nextDomNode;
+
+    if (this.container.firstChild !== this.domNode) {
+      this.container.replaceChildren(this.domNode);
+    }
+
+    this.runEffects();
+    return this.domNode;
   }
 
   // ----------------------------------------------------------
@@ -149,13 +181,25 @@ export class FunctionComponent {
   // 예: API에서 데이터 가져오기, 타이머 시작하기, 이벤트 등록하기
   //
   // 왜 렌더링과 분리할까?
-  //   → 화면을 먼저 그리고, 그 다음에 부가 작업을 하기 위해서.
-  //   → 사용자가 빈 화면을 오래 보지 않도록.
+  //   -> 화면을 먼저 그리고, 그 다음에 부가 작업을 하기 위해서.
+  //   -> 사용자가 빈 화면을 오래 보지 않도록.
   // ----------------------------------------------------------
   runEffects() {
-    // TODO: 구현하기
-    // hooks 배열을 순회하면서 type === 'effect'인 hook을 찾아
-    // 실행이 필요한 것들만 실행한다.
+    for (const hook of this.hooks) {
+      if (!hook || hook.type !== 'effect' || !hook.needsRun) {
+        continue;
+      }
+
+      if (typeof hook.cleanup === 'function') {
+        hook.cleanup();
+      }
+
+      const cleanup = hook.callback();
+      hook.cleanup = typeof cleanup === 'function' ? cleanup : null;
+      hook.needsRun = false;
+    }
+
+    return undefined;
   }
 }
 
@@ -175,6 +219,53 @@ export class FunctionComponent {
 //   FunctionComponent 인스턴스 (필요하면 나중에 update 가능)
 // ------------------------------------------------------------
 export function createApp(componentFn, props = {}) {
-  // TODO: 구현하기
-  // return new FunctionComponent(componentFn, props);
+  return new FunctionComponent(componentFn, props);
+}
+
+function expandTree(vnode) {
+  const safeNode = normalizeVNode(vnode);
+
+  if (safeNode.type === 'component') {
+    return expandTree(safeNode.fn(safeNode.props ?? {}));
+  }
+
+  if (safeNode.type === 'text') {
+    return safeNode;
+  }
+
+  return {
+    ...safeNode,
+    children: (safeNode.children ?? []).map((child) => expandTree(child)),
+  };
+}
+
+function normalizeVNode(vnode) {
+  if (isVNode(vnode)) {
+    return vnode;
+  }
+
+  if (vnode == null || typeof vnode === 'boolean') {
+    return createTextNode('');
+  }
+
+  if (typeof vnode === 'string' || typeof vnode === 'number') {
+    return createTextNode(String(vnode));
+  }
+
+  return createTextNode(String(vnode));
+}
+
+function isVNode(value) {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      (value.type === 'element' || value.type === 'text' || value.type === 'component')
+  );
+}
+
+function createTextNode(text) {
+  return {
+    type: 'text',
+    text,
+  };
 }
