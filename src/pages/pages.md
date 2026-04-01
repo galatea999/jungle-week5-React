@@ -52,7 +52,8 @@
 ### `vdomSection.js`
 
 - `setState -> re-render -> diff -> patch` 흐름을 소개합니다.
-- 이전/다음 트리와 patch 예측용 starter/answer를 넣어 두었고, 시각화 패널은 나중에 `diffVisualizer.js`와 연결할 수 있게 비워 둔 상태입니다.
+- 이전/다음 트리 예시와 patch 예측용 starter/answer를 보여 주고, 실제 `diffVisualizer.js`를 붙여 old/new tree와 patch 목록을 같이 볼 수 있게 구성했습니다.
+- 시나리오 버튼으로 `텍스트 변경 + 노드 추가`, `속성 변경 + 노드 제거`를 번갈아 확인할 수 있습니다.
 
 ### `workshopSection.js`
 
@@ -71,4 +72,4 @@
 
 - "현재 학습 흐름이 어떻게 짜였는지" 보려면 `componentSection.js`부터 순서대로 읽는 것이 좋습니다.
 - "가장 완성도가 높은 섹션 예시"를 보려면 `hooksSection.js`를 먼저 읽어도 좋습니다.
-- "아직 어떤 기능이 남았는지" 보려면 `vdomSection.js`의 STUB 문구와 각 챌린지 카드를 확인하면 됩니다.
+- "아직 어떤 기능이 남았는지" 보려면 각 챌린지 카드와 테스트 시나리오를 함께 보면 됩니다.
