@@ -8,6 +8,7 @@
 // 동작을 확인할 수 있게 구성했다.
 // ============================================================
 
+import { createAnswerToggle } from '../ui/contentBlocks.js';
 import { createPracticePlaygroundCard } from './practicePlayground.js';
 
 // 섹션 맨 위에서 학생에게 보여줄 학습 목표다.
@@ -362,7 +363,7 @@ function createHookLessonCard({
     }),
   );
   article.appendChild(createDetailList('직접 해보기', tryIt));
-  article.appendChild(createDetailCodeBlock('한 가지 가능한 답안', createCodeBlock(answerCode)));
+  article.appendChild(createDetailCodeBlock('한 가지 가능한 답안', createAnswerToggle(answerCode)));
   article.appendChild(createDetailParagraph('챌린지', challenge));
 
   return article;
@@ -391,17 +392,6 @@ function createDetailCodeBlock(title, content) {
   wrapper.append(heading, content);
 
   return wrapper;
-}
-
-// 코드 문자열을 <pre><code> DOM으로 감싸 주는 helper다.
-function createCodeBlock(codeText) {
-  const pre = document.createElement('pre');
-  const code = document.createElement('code');
-
-  code.textContent = codeText;
-  pre.appendChild(code);
-
-  return pre;
 }
 
 // "직접 해보기" 같은 실습 단계 목록을 그리는 helper다.

@@ -10,6 +10,7 @@
 // 어떤 부품을 만들고, 최종적으로 어떤 모양이 나와야 하는지를 분명히 보여 준다.
 // ============================================================
 
+import { createAnswerToggle } from '../ui/contentBlocks.js';
 import { createPracticePlaygroundCard } from './practicePlayground.js';
 
 // 워크숍에서 학생이 직접 만들 조각들이다.
@@ -167,7 +168,7 @@ export function createWorkshopSection() {
     description: '먼저 정적인 카드 앱을 만든 뒤, 마지막에 selectedSkill state와 클릭 이벤트를 붙여 보세요.',
     initialCode: WORKSHOP_PRACTICE.starterCode,
   }));
-  section.appendChild(createCodeCard('한 가지 가능한 답안', WORKSHOP_PRACTICE.answerCode));
+  section.appendChild(createAnswerCard('한 가지 가능한 답안', WORKSHOP_PRACTICE.answerCode));
   section.appendChild(createChallengeCard(WORKSHOP_CHALLENGE));
 
   return section;
@@ -222,6 +223,14 @@ function createCodeCard(title, code) {
   pre.appendChild(codeEl);
   article.appendChild(pre);
 
+  return article;
+}
+
+// 답안 카드는 토글 형태로 감춰 둔다.
+function createAnswerCard(title, code) {
+  const article = createCardShell(title);
+
+  article.appendChild(createAnswerToggle(code));
   return article;
 }
 

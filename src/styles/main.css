@@ -117,6 +117,12 @@ code {
   padding: 28px 0 56px;
 }
 
+.learning-shell {
+  height: 100vh;
+  overflow: hidden;
+  padding: 18px 0;
+}
+
 /* ===========================================================
    상단 히어로 영역은 페이지의 첫인상을 만든다.
    =========================================================== */
@@ -148,12 +154,25 @@ code {
     linear-gradient(135deg, rgba(32, 35, 42, 0.98), rgba(22, 24, 29, 0.98));
 }
 
+.hero-copy-inline {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 18px 26px;
+  width: 100%;
+  padding: 14px 20px;
+  text-align: left;
+}
+
 .hero-title-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 18px;
-  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 14px;
+  flex-wrap: nowrap;
+  flex: 0 0 auto;
+  min-width: 0;
 }
 
 .react-mark {
@@ -163,7 +182,7 @@ code {
 }
 
 .react-mark-inline {
-  width: 70px;
+  width: 44px;
   flex: 0 0 auto;
   filter:
     drop-shadow(0 0 18px rgba(97, 218, 251, 0.28))
@@ -191,36 +210,41 @@ code {
 
 .hero h1 {
   margin: 0;
-  font-size: clamp(30px, 4vw, 42px);
+  white-space: nowrap;
+  font-size: clamp(28px, 2.8vw, 38px);
   line-height: 1.06;
   font-weight: 900;
   letter-spacing: -0.04em;
   background:
     linear-gradient(
-      115deg,
-      rgba(255, 255, 255, 0.98) 0%,
-      rgba(255, 255, 255, 1) 34%,
-      rgba(244, 251, 255, 1) 44%,
-      rgba(255, 255, 255, 1) 47%,
-      rgba(97, 218, 251, 0.68) 49%,
-      rgba(255, 255, 255, 1) 51%,
-      rgba(248, 252, 255, 1) 64%,
-      rgba(255, 255, 255, 1) 78%,
-      rgba(255, 255, 255, 0.98) 100%
+      180deg,
+      rgba(214, 220, 226, 0.98) 0%,
+      rgba(237, 241, 244, 0.98) 24%,
+      rgba(188, 196, 204, 0.95) 48%,
+      rgba(230, 235, 240, 0.96) 72%,
+      rgba(177, 185, 193, 0.94) 100%
+    ),
+    linear-gradient(
+      118deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(228, 238, 245, 0.18) 41%,
+      rgba(97, 218, 251, 0.22) 49%,
+      rgba(243, 247, 250, 0.18) 57%,
+      rgba(255, 255, 255, 0) 100%
     );
-  background-size: 260% 100%;
-  background-position: 165% 50%;
+  background-size: 100% 100%, 240% 100%;
+  background-position: 50% 50%, 165% 50%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.45px rgba(255, 255, 255, 0.24);
+  -webkit-text-stroke: 0.5px rgba(214, 220, 226, 0.12);
   text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.26),
-    0 0 1px rgba(255, 255, 255, 0.6);
+    0 1px 0 rgba(245, 247, 249, 0.08),
+    0 0 1px rgba(208, 216, 224, 0.16);
   filter:
-    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.16))
-    drop-shadow(0 8px 18px rgba(97, 218, 251, 0.06));
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.08))
+    drop-shadow(0 8px 16px rgba(97, 218, 251, 0.04));
   animation: hero-title-shimmer 7.4s ease-in-out infinite;
 }
 
@@ -230,24 +254,26 @@ code {
    =========================================================== */
 @keyframes hero-title-shimmer {
   0% {
-    background-position: 165% 50%;
+    background-position: 50% 50%, 165% 50%;
   }
 
   50% {
-    background-position: 54% 50%;
+    background-position: 50% 50%, 54% 50%;
   }
 
   100% {
-    background-position: -8% 50%;
+    background-position: 50% 50%, -8% 50%;
   }
 }
 
 .hero-pills {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
-  justify-content: center;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 18px;
+  margin-top: 0;
+  justify-content: flex-start;
 }
 
 .hero-pill {
@@ -257,8 +283,9 @@ code {
   border-radius: 999px;
   background: rgba(97, 218, 251, 0.12);
   color: #dff7ff;
-  padding: 8px 12px;
-  font-size: 13px;
+  white-space: nowrap;
+  padding: 6px 11px;
+  font-size: 12px;
   font-weight: 700;
   text-decoration: none;
   transition:
@@ -321,15 +348,32 @@ code {
     minmax(164px, 188px)
     minmax(0, 1.08fr)
     minmax(420px, 0.92fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
   justify-content: start;
   gap: 24px;
-  align-items: start;
+  align-items: stretch;
+}
+
+.learning-hero-banner {
+  grid-column: 2 / 4;
+  grid-row: 1;
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.learning-hero-banner .hero-copy {
+  width: 100%;
 }
 
 .learning-sidebar {
   grid-column: 1;
-  position: sticky;
-  top: 18px;
+  grid-row: 2;
+  position: static;
+  align-self: start;
+  height: fit-content;
+  min-height: auto;
+  overflow: visible;
   padding: 14px;
   width: 100%;
 }
@@ -358,29 +402,43 @@ code {
 .learning-content {
   display: block;
   width: 100%;
+  min-height: auto;
+  overflow: visible;
+  padding-right: 0;
 }
 
 .learning-stage {
   grid-column: 2;
+  grid-row: 2;
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 28px;
   width: 100%;
   min-width: 0;
   max-width: none;
   justify-self: start;
+  align-self: stretch;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   border: 1px solid rgba(8, 126, 164, 0.12);
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.98);
-  padding: 28px 32px 36px;
+  padding: 22px 28px 28px;
 }
 
 .learning-practice-rail {
   grid-column: 3;
-  position: sticky;
-  top: 18px;
-  align-self: start;
+  grid-row: 2;
+  position: static;
+  align-self: stretch;
   min-width: 0;
   width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .practice-rail-slot {
@@ -751,6 +809,7 @@ code {
 .you-will-learn,
 .note-block,
 .deep-dive,
+.answer-toggle,
 .recap-block,
 .challenge-block {
   margin-top: 14px;
@@ -808,6 +867,65 @@ code {
   margin-top: 12px;
   color: var(--muted);
   line-height: 1.75;
+}
+
+.answer-toggle {
+  margin-top: 12px;
+  border-style: dashed;
+  border-color: rgba(8, 126, 164, 0.18);
+  background: linear-gradient(180deg, rgba(230, 247, 255, 0.62), rgba(255, 255, 255, 0.94));
+  overflow: hidden;
+}
+
+.answer-toggle summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+  padding: 14px 16px;
+  font-weight: 800;
+  color: var(--accent-strong);
+}
+
+.answer-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.answer-toggle summary::after {
+  content: '열기';
+  flex: 0 0 auto;
+  border: 1px solid rgba(8, 126, 164, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--text);
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.answer-toggle[open] summary::after {
+  content: '닫기';
+}
+
+.answer-toggle-body {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid rgba(8, 126, 164, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 14px 16px 16px;
+}
+
+.answer-toggle-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.answer-toggle .code-block {
+  margin: 0;
 }
 
 .challenge-block {
@@ -1222,6 +1340,12 @@ code {
    작은 화면에서는 세로로 쌓여야 읽기 쉽다.
    =========================================================== */
 @media (max-width: 1320px) {
+  .learning-shell {
+    height: auto;
+    overflow: visible;
+    padding: 28px 0 56px;
+  }
+
   .main-grid,
   .learning-grid,
   .ui-preview-grid,
@@ -1229,6 +1353,8 @@ code {
   .diff-grid,
   .chapter-shell {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    height: auto;
   }
 
   .hero,
@@ -1236,20 +1362,65 @@ code {
     display: flex;
   }
 
+  .learning-hero-banner {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .hero-copy-inline {
+    display: grid;
+    justify-content: stretch;
+    gap: 14px;
+    padding: 20px 22px;
+    text-align: center;
+  }
+
+  .hero-title-row {
+    justify-content: center;
+  }
+
+  .hero h1 {
+    white-space: normal;
+    font-size: clamp(32px, 4.4vw, 42px);
+  }
+
+  .hero-pills {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .react-mark-inline {
+    width: 64px;
+  }
+
   .learning-sidebar {
     grid-column: auto;
     position: static;
+    grid-row: auto;
+    align-self: stretch;
+    height: auto;
+    overflow: visible;
   }
 
   .learning-stage {
     grid-column: auto;
+    grid-row: auto;
     max-width: none;
     justify-self: stretch;
+    height: auto;
+    overflow: visible;
   }
 
   .learning-practice-rail {
     grid-column: auto;
-    position: static;
+    grid-row: auto;
+    height: auto;
+    overflow: visible;
+  }
+
+  .learning-content {
+    overflow: visible;
+    padding-right: 0;
   }
 
   .chapter-shell {
@@ -1273,6 +1444,14 @@ code {
 
   .hero h1 {
     font-size: 30px;
+  }
+
+  .hero-copy-inline {
+    padding: 16px;
+  }
+
+  .react-mark-inline {
+    width: 52px;
   }
 
   .playground-actions {

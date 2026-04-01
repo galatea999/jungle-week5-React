@@ -305,6 +305,40 @@ export function createCodeBlock(code, language = 'js') {
 }
 
 // ------------------------------------------------------------
+// createAnswerToggle(code, options)
+// ------------------------------------------------------------
+// "한 가지 가능한 답안"을 기본적으로 닫아 두는 토글 박스를 만든다.
+// 학생이 먼저 직접 풀어 본 뒤 필요할 때만 열어 보게 하려는 의도다.
+// ------------------------------------------------------------
+export function createAnswerToggle(code, options = {}) {
+  const {
+    summaryText = '직접 풀어본 뒤 답안 펼치기',
+    hintText = '막혔을 때만 열어 보고, 먼저 스스로 한 번 완성해 보세요.',
+    language = 'js',
+  } = options;
+
+  const details = document.createElement('details');
+  const summary = document.createElement('summary');
+  const body = document.createElement('div');
+
+  details.className = 'answer-toggle';
+  body.className = 'answer-toggle-body';
+  summary.textContent = summaryText;
+
+  if (hintText) {
+    const hint = document.createElement('p');
+    hint.className = 'answer-toggle-note';
+    hint.textContent = hintText;
+    body.appendChild(hint);
+  }
+
+  body.appendChild(createCodeBlock(code, language));
+  details.append(summary, body);
+
+  return details;
+}
+
+// ------------------------------------------------------------
 // createRecap(items)
 // ------------------------------------------------------------
 // 섹션 마지막에 쓰는 "요약 정리" 박스를 만든다.

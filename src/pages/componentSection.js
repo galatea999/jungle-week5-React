@@ -14,6 +14,7 @@
 // 3. playground에서 바로 실행할 starter code와 답안 예시를 함께 준비한다.
 // ============================================================
 
+import { createAnswerToggle } from '../ui/contentBlocks.js';
 import { createPracticePlaygroundCard } from './practicePlayground.js';
 
 // 이 목록은 "이번 섹션에서 무엇을 배우는가?" 카드에 그대로 들어간다.
@@ -157,7 +158,7 @@ export function createComponentSection() {
     description: '같은 ProfileCard를 한 번 더 호출해 보고, props만 바꿨을 때 카드가 어떻게 달라지는지 확인해 보세요.',
     initialCode: COMPONENT_PRACTICE.starterCode,
   }));
-  section.appendChild(createCodeCard('한 가지 가능한 답안', COMPONENT_PRACTICE.answerCode));
+  section.appendChild(createAnswerCard('한 가지 가능한 답안', COMPONENT_PRACTICE.answerCode));
   section.appendChild(createChallengeCard(COMPONENT_CHALLENGE));
 
   return section;
@@ -214,6 +215,15 @@ function createCodeCard(title, code) {
   codeEl.textContent = code;
   pre.appendChild(codeEl);
   card.appendChild(pre);
+  return card;
+}
+
+// 답안 카드는 기본적으로 접어 두어,
+// 학생이 실습을 먼저 시도하게 만드는 helper다.
+function createAnswerCard(title, code) {
+  const card = createCardShell(title);
+
+  card.appendChild(createAnswerToggle(code));
   return card;
 }
 

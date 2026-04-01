@@ -9,6 +9,7 @@
 // 학생이 "값을 기억하는 법" 다음에 "그 값을 어디에 둘지"까지 생각하게 만드는 단계다.
 // ============================================================
 
+import { createAnswerToggle } from '../ui/contentBlocks.js';
 import { createPracticePlaygroundCard } from './practicePlayground.js';
 
 // 학생이 개념을 절차로 이해하도록 돕는 단계 목록이다.
@@ -145,7 +146,7 @@ export function createStateSection() {
     description: '입력창은 바뀌지만 아래 카드가 아직 같이 안 바뀝니다. state를 App으로 올려서 두 컴포넌트가 같은 값을 보게 만들어 보세요.',
     initialCode: STATE_PRACTICE.starterCode,
   }));
-  section.appendChild(createCodeCard('한 가지 가능한 답안', STATE_PRACTICE.answerCode));
+  section.appendChild(createAnswerCard('한 가지 가능한 답안', STATE_PRACTICE.answerCode));
   section.appendChild(createChallengeCard(STATE_CHALLENGE));
 
   return section;
@@ -201,6 +202,14 @@ function createCodeCard(title, code) {
   pre.appendChild(codeEl);
   article.appendChild(pre);
 
+  return article;
+}
+
+// 답안은 바로 보이지 않게 접어 두는 helper다.
+function createAnswerCard(title, code) {
+  const article = createCardShell(title);
+
+  article.appendChild(createAnswerToggle(code));
   return article;
 }
 

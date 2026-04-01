@@ -10,6 +10,7 @@
 // ============================================================
 
 import { h } from '../framework/createElement.js';
+import { createAnswerToggle } from '../ui/contentBlocks.js';
 import { createDiffVisualizer } from '../ui/diffVisualizer.js';
 
 // 학생이 setState 이후의 흐름을 한 줄씩 따라가도록 만든 파이프라인 목록이다.
@@ -161,7 +162,7 @@ export function createVdomSection() {
   section.appendChild(createCodeCard('챌린지 예시: 다음 트리', AFTER_TREE_EXAMPLE));
   section.appendChild(createVisualizerCard());
   section.appendChild(createCodeCard('직접 해보기 starter code', VDOM_PRACTICE.starterCode));
-  section.appendChild(createCodeCard('한 가지 가능한 답안', VDOM_PRACTICE.answerCode));
+  section.appendChild(createAnswerCard('한 가지 가능한 답안', VDOM_PRACTICE.answerCode));
   section.appendChild(createChallengeCard(VDOM_CHALLENGE));
 
   return section;
@@ -217,6 +218,14 @@ function createCodeCard(title, code) {
   pre.appendChild(codeEl);
   article.appendChild(pre);
 
+  return article;
+}
+
+// 답안은 접어 두었다가 필요할 때만 펼친다.
+function createAnswerCard(title, code) {
+  const article = createCardShell(title);
+
+  article.appendChild(createAnswerToggle(code));
   return article;
 }
 
