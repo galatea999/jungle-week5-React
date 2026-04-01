@@ -33,6 +33,12 @@ import { applyPatches } from '../patch/applyPatch.js';
 // ------------------------------------------------------------
 export let currentComponent = null;
 
+// hook은 "루트 컴포넌트 함수가 실행되는 짧은 순간"에만 허용된다.
+// root  : 최상위 컴포넌트 본문을 실행하는 중
+// child : expandTree()가 자식 컴포넌트를 펼치는 중
+// idle  : 그 외 시간
+export let currentRenderPhase = 'idle';
+
 // ------------------------------------------------------------
 // setCurrentComponent(component)
 // ------------------------------------------------------------
@@ -42,6 +48,10 @@ export let currentComponent = null;
 // ------------------------------------------------------------
 export function setCurrentComponent(component) {
   currentComponent = component;
+}
+
+function setRenderPhase(phase) {
+  currentRenderPhase = phase;
 }
 
 // ------------------------------------------------------------
@@ -87,14 +97,18 @@ export class FunctionComponent {
   // ----------------------------------------------------------
   render() {
     this.hookIndex = 0;
-    setCurrentComponent(this);
+    let rootVdom;
 
+    setCurrentComponent(this);
+    setRenderPhase('root');
     try {
-      const newVdom = this.fn(this.props);
-      return expandTree(newVdom);
+      rootVdom = this.fn(this.props);
     } finally {
       setCurrentComponent(null);
+      setRenderPhase('idle');
     }
+
+    return expandTree(rootVdom);
   }
 
   // ----------------------------------------------------------
@@ -222,11 +236,14 @@ export function createApp(componentFn, props = {}) {
   return new FunctionComponent(componentFn, props);
 }
 
-function expandTree(vnode) {
+// render()의 결과에는 component VNode가 남아 있지 않게 만드는 것이 목표다.
+// 그래서 component VNode를 만나면 해당 함수를 다시 실행해서
+// 최종적으로 element/text 트리만 남을 때까지 펼친다.
+export function expandTree(vnode) {
   const safeNode = normalizeVNode(vnode);
 
   if (safeNode.type === 'component') {
-    return expandTree(safeNode.fn(safeNode.props ?? {}));
+    return expandChildComponent(safeNode.fn, safeNode.props ?? {});
   }
 
   if (safeNode.type === 'text') {
@@ -239,6 +256,22 @@ function expandTree(vnode) {
   };
 }
 
+function expandChildComponent(componentFn, props) {
+  const previousPhase = currentRenderPhase;
+
+  // 자식 컴포넌트는 stateless props-only 규칙을 지켜야 하므로
+  // 이 구간에서는 hook 사용을 허용하지 않는다.
+  setRenderPhase('child');
+
+  try {
+    return expandTree(componentFn(props));
+  } finally {
+    setRenderPhase(previousPhase);
+  }
+}
+
+// 컴포넌트는 문자열, 숫자, null 같은 값도 반환할 수 있다.
+// diff/patch 단계가 흔들리지 않도록 이런 값을 일관된 VNode 형태로 맞춘다.
 function normalizeVNode(vnode) {
   if (isVNode(vnode)) {
     return vnode;
@@ -255,6 +288,7 @@ function normalizeVNode(vnode) {
   return createTextNode(String(vnode));
 }
 
+// 현재 값이 framework가 이해하는 VNode 구조인지 확인한다.
 function isVNode(value) {
   return Boolean(
     value &&
@@ -263,6 +297,7 @@ function isVNode(value) {
   );
 }
 
+// 원시값을 통일된 text VNode 구조로 감싼다.
 function createTextNode(text) {
   return {
     type: 'text',
