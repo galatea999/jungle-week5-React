@@ -39,6 +39,25 @@ function App() {
   });
 }`;
 
+// 첫 섹션의 챌린지는 "컴포넌트 재사용" 감각을 익히는 데 초점을 둔다.
+// 같은 ProfileCard를 여러 번 호출해도,
+// 컴포넌트 정의는 하나고 데이터만 바뀐다는 점을 직접 느끼게 만드는 문제다.
+const COMPONENT_CHALLENGE = {
+  title: '챌린지: 같은 카드 두 번 재사용하기',
+  goal: 'ProfileCard 하나를 재사용해서 서로 다른 두 학습자의 프로필 카드를 화면에 보여 주세요.',
+  tasks: [
+    'App에서 ProfileCard를 두 번 호출하고 props 값만 다르게 넣어 본다.',
+    'name, job 말고 track 또는 motto 같은 새 props를 하나 더 추가해 본다.',
+    '컴포넌트 함수를 새로 만들지 말고 같은 ProfileCard를 재사용해 화면을 늘린다.',
+  ],
+  success: [
+    '화면에 서로 다른 정보의 카드가 두 장 보인다.',
+    'ProfileCard 함수는 하나만 있고, 두 카드의 차이는 props 값으로만 만들어진다.',
+    '부모 App이 어떤 데이터를 내려주는지 코드만 읽어도 구분된다.',
+  ],
+  hint: '컴포넌트 개수를 늘리기보다 App에서 같은 ProfileCard를 여러 번 호출하고 props를 바꿔 보세요.',
+};
+
 // ------------------------------------------------------------
 // createComponentSection()
 // ------------------------------------------------------------
@@ -53,7 +72,7 @@ function App() {
 //   3. 개념 설명
 //   4. 읽는 예제 코드
 //   5. 나중에 playground가 붙을 자리
-//   6. 학생이 스스로 확장해 볼 체크포인트
+//   6. 학생이 스스로 풀어 볼 챌린지
 // ------------------------------------------------------------
 export function createComponentSection() {
   const section = document.createElement('section');
@@ -77,10 +96,7 @@ export function createComponentSection() {
     '직접 해보기 영역',
     '여기에 codePlayground.js를 연결해서 이름과 직업을 바꾸면 오른쪽 프리뷰가 바로 바뀌도록 만들 예정입니다.',
   ));
-  section.appendChild(createPlaceholderCard(
-    '체크포인트',
-    '나중에는 "컴포넌트를 두 번 재사용해 같은 모양의 카드를 여러 장 찍어내기" 미션을 붙일 예정입니다.',
-  ));
+  section.appendChild(createChallengeCard(COMPONENT_CHALLENGE));
 
   return section;
 }
@@ -150,6 +166,50 @@ function createPlaceholderCard(title, text) {
 
   card.appendChild(body);
   return card;
+}
+
+// 챌린지 문제를 실제 과제처럼 읽히게 만드는 카드 helper다.
+// 단순 한 줄 문구 대신 목표, 할 일, 성공 기준, 힌트를 함께 보여 준다.
+function createChallengeCard({ title, goal, tasks, success, hint }) {
+  const card = createCardShell(title);
+
+  card.appendChild(createDetailParagraph('문제 목표', goal));
+  card.appendChild(createDetailList('학생이 해야 할 일', tasks));
+  card.appendChild(createDetailList('성공 기준', success));
+  card.appendChild(createDetailParagraph('힌트', hint));
+
+  return card;
+}
+
+// 작은 제목과 본문을 한 덩어리로 만드는 helper다.
+function createDetailParagraph(title, text) {
+  const wrapper = document.createElement('div');
+  const heading = document.createElement('h4');
+  const body = document.createElement('p');
+
+  heading.textContent = title;
+  body.textContent = text;
+  wrapper.append(heading, body);
+
+  return wrapper;
+}
+
+// 챌린지의 할 일 / 성공 기준처럼 여러 항목이 필요한 경우에 쓰는 helper다.
+function createDetailList(title, items) {
+  const wrapper = document.createElement('div');
+  const heading = document.createElement('h4');
+  const list = document.createElement('ul');
+
+  heading.textContent = title;
+
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.textContent = item;
+    list.appendChild(li);
+  }
+
+  wrapper.append(heading, list);
+  return wrapper;
 }
 
 // 모든 카드가 공통으로 쓰는 바깥 껍데기다.
