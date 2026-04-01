@@ -31,12 +31,6 @@ export function h(tag, props, ...children) {
   const normalizedChildren = normalizeChildren(children);
 
   if (typeof tag === 'function') {
-    // 함수 태그는 아직 실행하지 않은 컴포넌트이다.
-    // 여기서는 바로 DOM을 만들지 않고,
-    // "이 함수와 props를 나중에 실행해 달라"는 component VNode를 만든다.
-    //
-    // children을 props 안에 넣어 두면
-    // 자식 컴포넌트가 props.children 형태로 같은 데이터를 받을 수 있다.
     return {
       type: 'component',
       fn: tag,
@@ -87,9 +81,6 @@ function normalizeChildren(children) {
   return normalized;
 }
 
-// normalizeChildren() 안에서는
-// 값이 이미 VNode인지, 아니면 text VNode로 바꿔야 할 원시값인지 구분해야 한다.
-// 이 helper는 그 판별만 맡는다.
 function isFrameworkVNode(value) {
   return Boolean(
     value &&

@@ -6,10 +6,7 @@
 // hooks 배열 덕분에 이전 상태와 계산 결과를 기억할 수 있다.
 // ============================================================
 
-import { currentComponent, currentRenderPhase } from './component.js';
-
-// 이번 프로젝트에서는 hook을 루트 FunctionComponent에서만 사용한다.
-// 자식 컴포넌트는 state를 직접 가지지 않고 props만 받아 그리는 순수 함수로 둔다.
+import { currentComponent } from './component.js';
 
 // ============================================================
 // useState(initialValue)
@@ -21,8 +18,6 @@ export function useState(initialValue) {
   const idx = component.hookIndex++;
 
   if (component.hooks[idx] === undefined) {
-    // 첫 렌더링에서만 초기값을 채우고,
-    // 이후 렌더링부터는 같은 칸의 이전 값을 그대로 재사용한다.
     component.hooks[idx] = initialValue;
   }
 
@@ -110,21 +105,9 @@ export function depsChanged(prevDeps, nextDeps) {
   return prevDeps.some((dep, index) => !Object.is(dep, nextDeps[index]));
 }
 
-// hook은 "지금 어느 컴포넌트를 렌더링 중인가?"를 알아야
-// hooks 배열의 어느 칸을 읽고 써야 하는지 결정할 수 있다.
-// 그래서 render()가 currentComponent를 설정해 두고,
-// 각 hook은 이 helper를 통해 현재 주인을 가져온다.
 function getCurrentComponent(hookName) {
-  if (currentRenderPhase === 'child') {
-    // 이번 프로젝트 규칙:
-    // 자식 컴포넌트는 state를 직접 가지지 않고 props만 사용한다.
-    throw new Error(
-      `${hookName} can only be used in the root component. Child components in this project must use props only.`
-    );
-  }
-
   if (!currentComponent) {
-    throw new Error(`${hookName} must be called while the root component is rendering.`);
+    throw new Error(`${hookName} must be called while a component is rendering.`);
   }
 
   return currentComponent;
