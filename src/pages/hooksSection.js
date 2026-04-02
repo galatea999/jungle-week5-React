@@ -15,22 +15,22 @@ import { createPracticePlaygroundCard } from './practicePlayground.js';
 // 먼저 목표를 본 뒤 아래 Hook 카드들을 읽으면
 // "지금 뭘 확인해야 하는지"를 잡기 쉽다.
 const SECTION_GOALS = [
-  '함수형 컴포넌트가 다시 실행돼도 값이 어떻게 유지되는지 이해한다.',
-  'useState, useEffect, useMemo가 각각 어떤 문제를 해결하기 위해 등장했는지 구분한다.',
-  '같은 컴포넌트 안에서도 "값 기억하기", "렌더링 뒤 실행하기", "계산 아끼기"가 서로 다른 역할이라는 점을 익힌다.',
-  'playground에서 어떤 값을 바꿔 보면 Hook의 차이가 잘 드러나는지 미리 익힌다.',
+  '함수형 컴포넌트가 다시 실행돼도 값이 어떻게 유지되는지, 즉 <b><i>상태 기억</i></b> 원리를 이해한다.',
+  '<b><i>useState / useEffect / useMemo</i></b>가 각각 어떤 문제를 해결하는지 구분한다.',
+  '같은 컴포넌트 안에서도 "값 기억하기", "렌더링 뒤 실행하기", "계산 아끼기"가 서로 다른 <b><i>역할</i></b>이라는 점을 익힌다.',
+  'playground에서 어떤 값을 바꿔 보면 Hook의 차이가 잘 드러나는지 <b><i>관찰 포인트</i></b>를 익힌다.',
 ];
 
 // Hook은 문법보다 "호출 규칙"을 먼저 놓치기 쉽다.
 // 그래서 규칙을 별도 카드로 빼서, 실습 전에 주의점을 한번 더 짚어 준다.
 const HOOK_RULES = [
-  'Hook은 컴포넌트 함수의 맨 위에서 같은 순서로 호출한다.',
+  'Hook은 컴포넌트 함수의 맨 위에서 <b><i>같은 순서</i></b>로 호출한다.',
   '조건문이나 반복문 안에서 Hook 호출 순서를 바꾸지 않는다.',
   'state를 바꿀 때는 값을 직접 덮어쓰지 말고 setter 함수를 사용한다.',
 ];
 
 const HOOK_OVERVIEW =
-  '함수형 컴포넌트는 화면이 다시 그려질 때마다 함수 본문이 처음부터 다시 실행됩니다. 그래서 이전 값을 기억하거나, 렌더링이 끝난 뒤 특정 동작을 실행하거나, 무거운 계산을 계속 다시 하지 않으려면 단순 지역 변수만으로는 부족합니다. Hook은 바로 이런 문제를 해결하기 위한 React의 규칙 있는 도구입니다. 무엇을 기억할지, 언제 실행할지, 언제 이전 계산을 재사용할지를 Hook이 정해진 자리에서 관리해 주기 때문에 함수형 컴포넌트도 상태를 가진 화면을 만들 수 있습니다.';
+  '함수형 컴포넌트는 화면이 다시 그려질 때마다 함수 본문이 처음부터 다시 실행됩니다. 그래서 이전 값을 기억하거나, 렌더링이 끝난 뒤 특정 동작을 실행하거나, 무거운 계산을 계속 다시 하지 않으려면 단순 지역 변수만으로는 부족합니다. Hook은 바로 이런 문제를 해결하기 위한 React의 규칙 있는 도구입니다. 무엇을 기억할지, 언제 실행할지, 언제 이전 계산을 재사용할지를 Hook이 정해진 자리에서 관리해 주기 때문에 함수형 컴포넌트도 <b><i>상태를 가진 화면</i></b>을 만들 수 있습니다.';
 
 // 각 Hook 카드의 원본 데이터다.
 // 이름, 한 줄 요약, 자세한 설명, starter code, 실습 포인트, 답안 예시, 챌린지를 한 곳에 모아 두면
@@ -281,7 +281,7 @@ function createListCard(title, items) {
 
   for (const item of items) {
     const li = document.createElement('li');
-    li.textContent = item;
+    li.innerHTML = item;
     list.appendChild(li);
   }
 
@@ -294,7 +294,7 @@ function createParagraphCard(title, text) {
   const article = createCardShell(title);
   const paragraph = document.createElement('p');
 
-  paragraph.textContent = text;
+  paragraph.innerHTML = text;
   article.appendChild(paragraph);
 
   return article;
@@ -315,7 +315,7 @@ function createHookLessonCard({
   const article = createCardShell(name);
   const summaryParagraph = document.createElement('p');
 
-  summaryParagraph.textContent = summary;
+  summaryParagraph.innerHTML = summary;
 
   article.appendChild(summaryParagraph);
   article.appendChild(createDetailParagraph('설명', explanation));
@@ -339,7 +339,7 @@ function createDetailParagraph(title, text) {
   const paragraph = document.createElement('p');
 
   heading.textContent = title;
-  paragraph.textContent = text;
+  paragraph.innerHTML = text;
 
   wrapper.append(heading, paragraph);
   return wrapper;
@@ -366,7 +366,7 @@ function createDetailList(title, items) {
 
   for (const item of items) {
     const li = document.createElement('li');
-    li.textContent = item;
+    li.innerHTML = item;
     list.appendChild(li);
   }
 

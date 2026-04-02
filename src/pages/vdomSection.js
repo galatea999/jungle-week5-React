@@ -17,17 +17,17 @@ import { createDiffVisualizer } from '../ui/diffVisualizer.js';
 // 이 순서는 project-plan의 핵심 개념과도 맞물린다.
 const PIPELINE = [
   'setState가 호출된다.',
-  '컴포넌트 함수가 다시 실행된다.',
-  '새 Virtual DOM 트리가 만들어진다.',
+  '컴포넌트 함수가 다시 실행된다. (<b><i>re-render</i></b>)',
+  '새 Virtual DOM 트리가 만들어진다. (<b><i>new tree</i></b>)',
   '이전 트리와 새 트리를 diff로 비교한다.',
-  'patch를 실제 DOM에 적용한다.',
+  'patch를 실제 DOM에 적용한다. (<b><i>최소 변경 반영</i></b>)',
 ];
 
 const VDOM_INTRO =
-  'Virtual DOM은 브라우저의 실제 DOM을 바로바로 건드리기 전에, 먼저 자바스크립트 객체 형태로 "다음에 그려야 할 화면"을 표현해 두는 방법입니다. 이렇게 중간 표현을 하나 두면, 이전 화면과 다음 화면을 비교해서 무엇이 달라졌는지 계산하기가 쉬워집니다. React가 빠르다고 말할 때 중요한 점은 "무조건 다시 안 그린다"가 아니라, "정말 바뀐 부분만 골라서 바꿀 수 있게 돕는다"에 더 가깝습니다.';
+  'Virtual DOM은 브라우저의 실제 DOM을 바로바로 건드리기 전에, 먼저 자바스크립트 객체 형태로 "다음에 그려야 할 화면"을 표현해 두는 방법입니다. 이렇게 중간 표현을 하나 두면, 이전 화면과 다음 화면을 비교해서 무엇이 달라졌는지 계산하기가 쉬워집니다. React가 빠르다고 말할 때 중요한 점은 "무조건 다시 안 그린다"가 아니라, "<b><i>정말 바뀐 부분만 골라서 바꾼다</i></b>"에 더 가깝습니다.';
 
 const VDOM_IMPORTANCE =
-  '이 챕터에서는 Virtual DOM을 단순한 용어로 외우기보다, 왜 old tree와 new tree를 비교하는지가 핵심입니다. 텍스트 하나가 바뀌었을 뿐인데 전체 리스트를 통째로 다시 만들 필요는 없습니다. diff와 patch는 바로 이런 낭비를 줄이기 위해 등장하는 개념이며, 어떤 노드는 재사용하고 어떤 노드만 바꾸는지 구분하는 눈을 기르는 것이 중요합니다.';
+  '이 챕터에서는 Virtual DOM을 단순한 용어로 외우기보다, 왜 old tree와 new tree를 비교하는지가 핵심입니다. 텍스트 하나가 바뀌었을 뿐인데 전체 리스트를 통째로 다시 만들 필요는 없습니다. diff와 patch는 바로 이런 낭비를 줄이기 위해 등장하는 개념이며, 어떤 노드는 재사용하고 어떤 노드만 바꾸는지 구분하는 눈을 기르는 것이 중요합니다. 즉 <b><i>전체 교체가 아니라 부분 업데이트</i></b>를 이해하는 챕터입니다.';
 
 // 첫 번째 예시는 "무엇이 바뀌고 무엇이 그대로 남는가"를 눈으로 비교하게 만들기 위한 샘플이다.
 // challenge도 이 시나리오를 기준으로 진행되므로 코드 예시와 시각화가 같은 이야기를 하게 된다.
@@ -187,7 +187,7 @@ function createParagraphCard(title, text) {
   const article = createCardShell(title);
   const paragraph = document.createElement('p');
 
-  paragraph.textContent = text;
+  paragraph.innerHTML = text;
   article.appendChild(paragraph);
 
   return article;
@@ -201,7 +201,7 @@ function createPipelineCard() {
 
   for (const step of PIPELINE) {
     const li = document.createElement('li');
-    li.textContent = step;
+    li.innerHTML = step;
     list.appendChild(li);
   }
 

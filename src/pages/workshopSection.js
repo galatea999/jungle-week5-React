@@ -20,14 +20,14 @@ const WORKSHOP_PARTS = [
   'Header 컴포넌트: 앱의 제목과 첫인상을 담당하는 상단 영역',
   'ProfileCard 컴포넌트: 이름, 트랙, 소개처럼 한 사람의 정보를 보여 주는 카드',
   'SkillList 컴포넌트: 배열 데이터를 목록으로 보여 주는 영역',
-  '루트 App 컴포넌트: 위의 조각들을 모으고 state를 관리하는 중심 역할',
+  '루트 App 컴포넌트: 위의 조각들을 모으고 <b><i>state를 관리</i></b>하는 중심 역할',
 ];
 
 const WORKSHOP_OVERVIEW =
-  '이 마지막 챕터는 앞에서 따로 배운 개념을 한 화면 안에서 다시 묶어 보는 단계입니다. 컴포넌트를 나누는 법, props로 데이터를 보내는 법, 배열을 목록으로 렌더링하는 법, state로 현재 선택값을 관리하는 법이 한 번에 등장합니다. 그래서 이 워크숍은 새로운 문법을 배우는 자리라기보다, 지금까지 배운 조각들이 실제로 어떻게 함께 움직이는지를 확인하는 자리라고 생각하면 좋습니다.';
+  '이 마지막 챕터는 앞에서 따로 배운 개념을 한 화면 안에서 다시 묶어 보는 단계입니다. 컴포넌트를 나누는 법, props로 데이터를 보내는 법, 배열을 목록으로 렌더링하는 법, state로 현재 선택값을 관리하는 법이 한 번에 등장합니다. 그래서 이 워크숍은 새로운 문법을 배우는 자리라기보다, 지금까지 배운 조각들이 실제로 어떻게 함께 움직이는지를 확인하는 자리라고 생각하면 좋습니다. 핵심은 <b><i>개념을 조립해서 하나의 앱으로 완성</i></b>하는 것입니다.';
 
 const WORKSHOP_STRATEGY =
-  '이런 종합 실습은 처음부터 완성된 앱을 만들려고 하면 오히려 더 어려워집니다. 먼저 Header, ProfileCard, SkillList처럼 정적인 컴포넌트를 차례대로 만든 뒤, 마지막에 selectedSkill state와 클릭 이벤트를 연결하는 식으로 단계를 나누면 훨씬 안정적으로 완성할 수 있습니다. 즉 "모양 먼저, 데이터 다음, 상호작용은 마지막" 순서로 접근하는 것이 핵심입니다.';
+  '이런 종합 실습은 처음부터 완성된 앱을 만들려고 하면 오히려 더 어려워집니다. 먼저 Header, ProfileCard, SkillList처럼 정적인 컴포넌트를 차례대로 만든 뒤, 마지막에 selectedSkill state와 클릭 이벤트를 연결하는 식으로 단계를 나누면 훨씬 안정적으로 완성할 수 있습니다. 즉 "<b><i>모양 먼저, 데이터 다음, 상호작용은 마지막</i></b>" 순서로 접근하는 것이 핵심입니다.';
 
 // 최종적으로 어떤 조립 결과를 목표로 삼는지 보여 주는 예시 코드다.
 // 학생이 이 코드를 보고 역으로 "필요한 부품이 무엇인지" 떠올릴 수 있어야 한다.
@@ -155,7 +155,7 @@ function createChecklistCard(title, items) {
 
   for (const item of items) {
     const li = document.createElement('li');
-    li.textContent = item;
+    li.innerHTML = item;
     list.appendChild(li);
   }
 
@@ -168,7 +168,7 @@ function createParagraphCard(title, text) {
   const article = createCardShell(title);
   const paragraph = document.createElement('p');
 
-  paragraph.textContent = text;
+  paragraph.innerHTML = text;
   article.appendChild(paragraph);
 
   return article;

@@ -162,6 +162,102 @@
         color: #4f5d73;
         line-height: 1.7;
       }
+
+      #progress,
+      #smoke-results,
+      #blockers,
+      #results {
+        display: grid;
+        gap: 16px;
+      }
+
+      .toggle-section {
+        border: 1px solid #cbd3df;
+        border-radius: 12px;
+        background: white;
+        overflow: hidden;
+      }
+
+      .toggle-section[open] {
+        box-shadow: 0 10px 24px rgba(23, 32, 51, 0.06);
+      }
+
+      .toggle-section.is-nested {
+        border-color: #d8dfeb;
+        background: #fcfdff;
+      }
+
+      .toggle-section.is-nested > .toggle-summary {
+        background: #f9fbff;
+      }
+
+      .toggle-summary {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        cursor: pointer;
+        list-style: none;
+      }
+
+      .toggle-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .toggle-summary:focus-visible {
+        outline: 2px solid #6f86d6;
+        outline-offset: -2px;
+      }
+
+      .toggle-title-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        min-width: 0;
+      }
+
+      .toggle-chevron {
+        color: #4f5d73;
+        font-size: 13px;
+        transform: rotate(0deg);
+        transition: transform 0.18s ease;
+      }
+
+      .toggle-section[open] > .toggle-summary .toggle-chevron {
+        transform: rotate(90deg);
+      }
+
+      .toggle-heading {
+        font-size: 20px;
+        font-weight: 800;
+      }
+
+      .toggle-heading-small {
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      .toggle-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+
+      .toggle-body {
+        padding: 0 16px 16px;
+      }
+
+      .toggle-note {
+        margin: 0 0 12px;
+        color: #4f5d73;
+        line-height: 1.7;
+      }
+
+      .toggle-body > .toggle-section + .toggle-section {
+        margin-top: 12px;
+      }
     </style>
   </head>
   <body>
@@ -310,6 +406,7 @@
       const blockersRoot = document.querySelector('#blockers');
       const resultsRoot = document.querySelector('#results');
       const refreshButton = document.querySelector('#refresh-button');
+      const panelState = {};
 
       function createStatusBadge(status) {
         const badge = document.createElement('span');
@@ -565,6 +662,270 @@
         container.append(heading, list);
       }
 
+      function createToggleSection({ key, title, note = '', badges = [], defaultOpen = false, nested = false }) {
+        const details = document.createElement('details');
+        const summary = document.createElement('summary');
+        const titleRow = document.createElement('div');
+        const chevron = document.createElement('span');
+        const heading = document.createElement('span');
+        const meta = document.createElement('div');
+        const body = document.createElement('div');
+        const shouldOpen = key && key in panelState ? panelState[key] : defaultOpen;
+
+        details.className = nested ? 'toggle-section is-nested' : 'toggle-section';
+        details.open = shouldOpen;
+
+        summary.className = 'toggle-summary';
+        titleRow.className = 'toggle-title-row';
+        chevron.className = 'toggle-chevron';
+        heading.className = nested ? 'toggle-heading toggle-heading-small' : 'toggle-heading';
+        meta.className = 'toggle-meta';
+        body.className = 'toggle-body';
+
+        chevron.textContent = '▸';
+        heading.textContent = title;
+
+        if (key) {
+          details.addEventListener('toggle', () => {
+            panelState[key] = details.open;
+          });
+        }
+
+        titleRow.append(chevron, heading);
+
+        for (const badge of badges) {
+          meta.appendChild(badge);
+        }
+
+        summary.append(titleRow, meta);
+        details.append(summary, body);
+
+        if (note) {
+          const noteElement = document.createElement('p');
+          noteElement.className = 'toggle-note';
+          noteElement.textContent = note;
+          body.appendChild(noteElement);
+        }
+
+        return { details, body };
+      }
+
+      function countItemsByStatus(items, statuses) {
+        return items.reduce((acc, item) => {
+          if (Object.prototype.hasOwnProperty.call(acc, item.status)) {
+            acc[item.status] += 1;
+          }
+
+          return acc;
+        }, Object.fromEntries(statuses.map((status) => [status, 0])));
+      }
+
+      function createExecutionCountBadges(results) {
+        const counts = countItemsByStatus(results, ['passed', 'failed']);
+
+        return [
+          createCountBadge('통과', counts.passed),
+          createCountBadge('실패', counts.failed),
+        ];
+      }
+
+      function createScenarioCountBadges(results) {
+        const counts = countItemsByStatus(results, ['covered', 'blocked', 'pending']);
+
+        return [
+          createCountBadge('covered', counts.covered),
+          createCountBadge('blocked', counts.blocked),
+          createCountBadge('pending', counts.pending),
+        ];
+      }
+
+      function renderToggleProgress(phases) {
+        const counts = countItemsByStatus(phases, ['completed', 'in_progress', 'pending']);
+        const grid = document.createElement('div');
+        const { details, body } = createToggleSection({
+          key: 'progress',
+          title: '통합 진행 현황',
+          note:
+            '아래 상태는 현재 저장소의 코드 구조를 기준으로 정리한 구현 현황입니다. 자동 테스트 통과 여부와 별개로 어떤 파트가 어디까지 연결됐는지 빠르게 확인할 수 있습니다.',
+          badges: [
+            createCountBadge('완료 Phase', counts.completed),
+            createCountBadge('진행 중 Phase', counts.in_progress),
+            createCountBadge('대기 Phase', counts.pending),
+          ],
+          defaultOpen: true,
+        });
+
+        grid.className = 'progress-grid';
+
+        for (const phase of phases) {
+          grid.appendChild(renderPhaseCard(phase));
+        }
+
+        body.appendChild(grid);
+        return details;
+      }
+
+      function renderToggleExecutableGroup(panelKey, title, results) {
+        const { details, body } = createToggleSection({
+          key: panelKey,
+          title,
+          badges: createExecutionCountBadges(results),
+          defaultOpen: false,
+          nested: true,
+        });
+        const list = document.createElement('ul');
+
+        for (const result of results) {
+          const item = document.createElement('li');
+          const row = document.createElement('div');
+          const name = document.createElement('p');
+          const badge = document.createElement('span');
+
+          row.className = 'result-title-row';
+          name.className = 'result-title';
+          badge.className = `status status-${result.status}`;
+
+          name.textContent = result.name;
+          badge.textContent = EXECUTION_STATUS_LABELS[result.status] || result.status;
+
+          row.append(name, badge);
+          item.appendChild(row);
+          appendDetail(item, '실행 결과', result.details);
+          list.appendChild(item);
+        }
+
+        body.appendChild(list);
+        return details;
+      }
+
+      function renderToggleSmokeTests() {
+        const componentResults = runComponentSmokeTests();
+        const hookResults = runHookSmokeTests();
+        const integrationResults = runIntegrationSmokeTests();
+        const allResults = [...componentResults, ...hookResults, ...integrationResults];
+        const { details, body } = createToggleSection({
+          key: 'smoke-tests',
+          title: '실행 가능한 스모크 테스트',
+          note:
+            '아래 결과는 이 페이지를 브라우저에서 바로 실행했을 때 확인되는 최소 assertion입니다. 어떤 파트에서 실제 테스트가 돌았는지 summary 배지와 토글 섹션으로 빠르게 구분할 수 있게 만들었습니다.',
+          badges: createExecutionCountBadges(allResults),
+          defaultOpen: true,
+        });
+
+        body.append(
+          renderToggleExecutableGroup('smoke-component', '컴포넌트 스모크 테스트', componentResults),
+          renderToggleExecutableGroup('smoke-hook', 'Hook 스모크 테스트', hookResults),
+          renderToggleExecutableGroup('smoke-integration', '통합 스모크 테스트', integrationResults),
+        );
+
+        return details;
+      }
+
+      function renderToggleBlockedSummary(groups) {
+        const allResults = groups.flatMap((group) => group.results);
+        const blockedItems = groups.flatMap((group) =>
+          group.results
+            .filter((result) => result.status === 'blocked')
+            .map((result) => ({
+              ...result,
+              groupTitle: group.title,
+            })),
+        );
+        const { details, body } = createToggleSection({
+          key: 'blockers',
+          title: '현재 blocker 요약',
+          note:
+            'pending 시나리오는 제외하고, 현재 프레임워크 빈틈 때문에 막혀 있는 항목만 따로 모았습니다. 발표 때는 이 패널만 열어도 막힌 지점을 바로 설명할 수 있습니다.',
+          badges: createScenarioCountBadges(allResults),
+          defaultOpen: blockedItems.length > 0,
+        });
+
+        if (blockedItems.length === 0) {
+          const done = document.createElement('p');
+          done.textContent = '현재 blocker가 없습니다.';
+          body.appendChild(done);
+          return details;
+        }
+
+        const list = document.createElement('ul');
+
+        for (const item of blockedItems) {
+          const li = document.createElement('li');
+          const row = document.createElement('div');
+          const name = document.createElement('p');
+          const badge = document.createElement('span');
+
+          row.className = 'result-title-row';
+          name.className = 'result-title';
+          badge.className = `status status-${item.status}`;
+
+          name.textContent = `${item.groupTitle} - ${item.name}`;
+          badge.textContent = SCENARIO_STATUS_LABELS[item.status] || item.status;
+
+          row.append(name, badge);
+          li.appendChild(row);
+          appendDetail(li, '커버 상태', item.coverage);
+          appendDetail(li, '현재 blocker', item.blocker);
+          appendDetail(li, '다음 담당', item.owner);
+          list.appendChild(li);
+        }
+
+        body.appendChild(list);
+        return details;
+      }
+
+      function renderToggleGroup(panelKey, title, results) {
+        const { details, body } = createToggleSection({
+          key: panelKey,
+          title,
+          badges: createScenarioCountBadges(results),
+          defaultOpen: false,
+        });
+        const list = document.createElement('ul');
+
+        for (const result of results) {
+          const item = document.createElement('li');
+          const titleRow = document.createElement('div');
+          const name = document.createElement('p');
+          const badge = document.createElement('span');
+
+          titleRow.className = 'result-title-row';
+          name.className = 'result-title';
+          badge.className = `status status-${result.status}`;
+
+          name.textContent = result.name;
+          badge.textContent = SCENARIO_STATUS_LABELS[result.status] || result.status;
+
+          titleRow.append(name, badge);
+          item.appendChild(titleRow);
+
+          appendDetail(item, '커버 상태', result.coverage);
+          appendDetail(item, '현재 blocker', result.blocker);
+          appendDetail(item, '다음 담당', result.owner);
+          appendDetail(item, '이유', result.reason);
+          appendDetail(item, '관련 Hook', result.hook);
+          appendDetail(item, '테스트 상황', result.setup);
+          appendListDetail(item, '검증 포인트', result.checkpoints);
+          appendDetail(item, '다음 단계', result.nextStep);
+
+          list.appendChild(item);
+        }
+
+        body.appendChild(list);
+        return details;
+      }
+
+      function renderToggleAll() {
+        const scenarioGroups = createScenarioGroups();
+
+        progressRoot.replaceChildren(renderToggleProgress(PROJECT_PROGRESS));
+        smokeRoot.replaceChildren(renderToggleSmokeTests());
+        blockersRoot.replaceChildren(renderToggleBlockedSummary(scenarioGroups));
+        resultsRoot.replaceChildren(
+          ...scenarioGroups.map((group, index) => renderToggleGroup(`scenario-${index}`, group.title, group.results)),
+        );
+      }
+
       // 테스트 그룹 하나를 section으로 렌더링한다.
       // 컴포넌트 / Hook / 통합 테스트가 모두 같은 패턴을 쓰므로 공통 함수로 묶었다.
       function renderGroup(title, results) {
@@ -619,8 +980,8 @@
         );
       }
 
-      refreshButton.addEventListener('click', renderAll);
-      renderAll();
+      refreshButton.addEventListener('click', renderToggleAll);
+      renderToggleAll();
     </script>
   </body>
 </html>

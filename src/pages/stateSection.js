@@ -17,16 +17,16 @@ import { createPracticePlaygroundCard } from './practicePlayground.js';
 // 실제로 state를 올릴 때 밟는 순서를 문장으로 적어 두었다.
 const LIFTING_STEPS = [
   '둘 이상의 자식이 같은 값을 함께 써야 하는지 먼저 확인한다.',
-  '같이 써야 한다면 그 값을 각자 들고 있지 말고 더 위의 부모 컴포넌트로 올린다.',
+  '같이 써야 한다면 그 값을 각자 들고 있지 말고 더 위의 부모 컴포넌트로 올린다. (<b><i>Lifting State Up</i></b>)',
   '부모가 props로 현재 값을 내려주고, 값을 바꾸는 함수도 함께 내려준다.',
-  '자식은 state를 따로 복사하지 않고, 받은 props를 기준으로 화면만 그리도록 정리한다.',
+  '자식은 state를 따로 복사하지 않고, 받은 props를 기준으로 화면만 그리도록 정리한다. (<b><i>단일 진실 원천</i></b>)',
 ];
 
 const STATE_CORE_EXPLANATION =
-  'React에서 state는 "누가 이 데이터를 진짜로 소유하느냐"와 연결된 개념입니다. 어떤 값이 한 컴포넌트 안에서만 쓰인다면 그 안에 두어도 괜찮지만, 여러 컴포넌트가 같은 값을 함께 봐야 한다면 각자 따로 state를 가지는 순간 값이 어긋나기 쉽습니다. 그래서 형제 컴포넌트가 같은 데이터를 써야 할 때는 보통 둘보다 위에 있는 부모가 state를 들고, 자식은 props로 그 값을 받아 쓰는 구조를 선택합니다.';
+  'React에서 state는 "누가 이 데이터를 진짜로 소유하느냐"와 연결된 개념입니다. 어떤 값이 한 컴포넌트 안에서만 쓰인다면 그 안에 두어도 괜찮지만, 여러 컴포넌트가 같은 값을 함께 봐야 한다면 각자 따로 state를 가지는 순간 값이 어긋나기 쉽습니다. 그래서 형제 컴포넌트가 같은 데이터를 써야 할 때는 보통 둘보다 위에 있는 부모가 state를 들고, 자식은 props로 그 값을 받아 쓰는 구조를 선택합니다. 핵심은 <b><i>state 소유자 1명</i></b>을 정하는 것입니다.';
 
 const STATE_IMPORTANCE_EXPLANATION =
-  '이 패턴을 "state를 위로 올린다"라고 부릅니다. 핵심은 자식끼리 직접 값을 맞추려고 애쓰는 것이 아니라, 부모가 하나의 기준값을 들고 모두에게 같은 값을 내려주는 데 있습니다. 이렇게 하면 입력창에서 값을 바꿨을 때 결과 카드도 바로 같은 값을 보게 되고, 나중에 로직이 커져도 데이터 흐름을 따라가기가 훨씬 쉬워집니다.';
+  '이 패턴을 "state를 위로 올린다"라고 부릅니다. 핵심은 자식끼리 직접 값을 맞추려고 애쓰는 것이 아니라, 부모가 하나의 기준값을 들고 모두에게 같은 값을 내려주는 데 있습니다. 이렇게 하면 입력창에서 값을 바꿨을 때 결과 카드도 바로 같은 값을 보게 되고, 나중에 로직이 커져도 데이터 흐름을 따라가기가 훨씬 쉬워집니다. 즉 <b><i>부모가 기준값을 관리</i></b>해야 동기화가 안정적입니다.';
 
 // 온도 변환기 패턴은 React 학습에서 자주 등장하는 대표 예제다.
 // 여기서는 "state가 부모에 있고 자식은 props를 받는다"는 구조만 보이도록 단순화했다.
@@ -180,7 +180,7 @@ function createParagraphCard(title, text) {
   const article = createCardShell(title);
   const paragraph = document.createElement('p');
 
-  paragraph.textContent = text;
+  paragraph.innerHTML = text;
   article.appendChild(paragraph);
 
   return article;
@@ -194,7 +194,7 @@ function createListCard(title, items) {
 
   for (const item of items) {
     const li = document.createElement('li');
-    li.textContent = item;
+    li.innerHTML = item;
     list.appendChild(li);
   }
 
